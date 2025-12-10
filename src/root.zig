@@ -5,11 +5,14 @@ const c = @cImport({
     @cInclude("malloc.h");
     @cInclude("string.h");
     @cInclude("stdint.h");
+});
+
+const libdragon = @cImport({
     @cInclude("libdragon.h");
 });
 
-const res = c.RESOLUTION_320x240;
-const bit = c.DEPTH_32_BPP;
+var res = libdragon.RESOLUTION_320x240;
+const bit = libdragon.DEPTH_32_BPP;
 
 fn filesize(pFile: *c.FILE) i32 {
     c.fseek(pFile, 0, c.SEEK_END);
@@ -19,20 +22,44 @@ fn filesize(pFile: *c.FILE) i32 {
     return lSize;
 }
 
-fn read_sprite(spritename: []u8) c.sprite_t {
+fn read_sprite(spritename: []u8) libdragon.sprite_t {
     const fp: *c.FILE = c.fopen(spritename);
     defer c.fclose(fp);
 
-    const sp: *c.sprite_t = c.malloc(c.filesize(fp));
+    const sp: *libdragon.sprite_t = c.malloc(c.filesize(fp));
     c.fread(sp, 1, c.filesize(fp), fp);
 
     return sp;
 }
 
 fn main() i32 {
-    c.display_init(res, bit, 2, c.GAMMA_NONE, c.FILTERS_DISABLED);
-    c.dfs_init(c.DFS_DEFAULT_LOCATION);
-    c.joypad_init();
+    libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+    libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
+    libdragon.joypad_init();
+
+    // const mario: libdragon.sprite_t = libdragon.read_sprite("rom://mario.sprite");
+    // const mariotrans: libdragon.sprite_t = libdragon.read_sprite("rom://mariotrans.sprite");
+    // const mario16: libdragon.sprite_t = libdragon.read_sprite("rom://mario16.sprite");
+    // const mariotrans16: libdragon.sprite_t = libdragon.read_sprite("rom://mariotrans16.sprite");
+
+    // const red: libdragon.sprite_t = libdragon.read_sprite("rom://red.sprite");
+    // const green: libdragon.sprite_t = libdragon.read_sprite("rom://green.sprite");
+    // const blue: libdragon.sprite_t = libdragon.read_sprite("rom://blue.sprite");
+
+    // const red16: libdragon.sprite_t = libdragon.read_sprite("rom://red16.sprite");
+    // const green16: libdragon.sprite_t = libdragon.read_sprite("rom://green16.sprite");
+    // const blue16: libdragon.sprite_t = libdragon.read_sprite("rom://blue16.sprite");
+
+    while (true) {
+        libdragon.joypad_poll();
+        const keys: libdragon.joypad_buttons_t = libdragon.joypad_get_buttons_pressed(libdragon.JOYPAD_PORT_1);
+
+        if (keys.d_up != false) {
+            libdragon.display_close();
+            res = libdragon.RESOLUTION_640x480;
+            libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+        }
+    }
 }
 
 
