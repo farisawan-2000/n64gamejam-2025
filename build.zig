@@ -7,11 +7,12 @@ const std = @import("std");
 // build runner to parallelize the build automatically (and the cache system to
 // know when a step doesn't need to be re-run).
 pub fn build(b: *std.Build) void {
-    // Standard target options allow the person running `zig build` to choose
-    // what target to build for. Here we do not override the defaults, which
-    // means any target is allowed, and the default is native. Other options
-    // for restricting supported target set are available.
-    const target = b.resolveTargetQuery(.{ .cpu_arch = .mips, .os_tag = .freestanding, .abi = .gnu });
+    const target = b.resolveTargetQuery(
+        .{
+            .cpu_arch = .mips, .os_tag = .freestanding, .abi = .gnu,
+            .cpu_model = .{ .explicit = &std.Target.mips.cpu.mips2 },
+        }
+    );
     // Standard optimization options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
     // set a preferred release mode, allowing the user to decide how to optimize.
@@ -81,12 +82,13 @@ pub fn build(b: *std.Build) void {
                 .{ .name = "jam2025", .module = mod },
             },
         }),
+        // .use_lld = false,
     });
 
     exe.addIncludePath(.{ .cwd_relative = "/usr/mips64-elf/include" });
     exe.addLibraryPath(.{ .cwd_relative = "/usr/mips64-elf/lib"});
     exe.setLinkerScript(.{ .cwd_relative ="/usr/mips64-elf/lib/n64.ld"});
-    // exe.linkSystemLibrary("c");
+    exe.linkSystemLibrary("c");
     exe.linkSystemLibrary("dragon");
 
     // This declares intent for the executable to be installed into the
