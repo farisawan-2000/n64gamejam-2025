@@ -1,10 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
-// comptime {
-//     @export(&main, .{ .name = "main", .linkage = .strong });
-// }
-
 const c = @cImport({
     @cInclude("stdio.h");
     @cInclude("stdlib.h");
