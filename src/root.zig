@@ -35,26 +35,26 @@ fn read_sprite(allocator: Allocator, spritename: [:0]const u8) !*libdragon.sprit
     return sp;
 }
 
-pub fn start() void {
+pub fn start() !void {
     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
     _ = libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
     libdragon.joypad_init();
 
-    const mario: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://mario.sprite");
-    const mariotrans: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://mariotrans.sprite");
-    const mario16: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://mario16.sprite");
-    const mariotrans16: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://mariotrans16.sprite");
+    const mario = try read_sprite(std.heap.raw_c_allocator, "rom://mario.sprite");
+    const mariotrans = try read_sprite(std.heap.raw_c_allocator, "rom://mariotrans.sprite");
+    const mario16 = try read_sprite(std.heap.raw_c_allocator, "rom://mario16.sprite");
+    const mariotrans16 = try read_sprite(std.heap.raw_c_allocator, "rom://mariotrans16.sprite");
 
-    const red: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://red.sprite");
-    const green: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://green.sprite");
-    const blue: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://blue.sprite");
+    const red = try read_sprite(std.heap.raw_c_allocator, "rom://red.sprite");
+    const green = try read_sprite(std.heap.raw_c_allocator, "rom://green.sprite");
+    const blue = try read_sprite(std.heap.raw_c_allocator, "rom://blue.sprite");
 
-    const red16: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://red16.sprite");
-    const green16: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://green16.sprite");
-    const blue16: *libdragon.sprite_t = read_sprite(std.heap.raw_c_allocator, "rom://blue16.sprite");
+    const red16 = try read_sprite(std.heap.raw_c_allocator, "rom://red16.sprite");
+    const green16 = try read_sprite(std.heap.raw_c_allocator, "rom://green16.sprite");
+    const blue16 = try read_sprite(std.heap.raw_c_allocator, "rom://blue16.sprite");
 
     while (true) {
-        const disp: libdragon.display_context_t = libdragon.display_get();
+        const disp = libdragon.display_get();
 
         // Display sprite (16bpp ones will only display in 16bpp mode, same with 32bpp)
         libdragon.graphics_draw_sprite( disp, 20, 150, mario );

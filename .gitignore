@@ -1,3 +1,7 @@
 .zig-cache/
 zig-out/
 jam2025
+build/
+
+*.z64
+
