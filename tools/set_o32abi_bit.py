@@ -13,13 +13,15 @@ if __name__ == '__main__':
             print('Error: Not an ELF file')
             sys.exit(1)
 
-        f.seek(36)
-        flags = struct.unpack('>I', f.read(4))[0]
+        # f.seek(36)
+        # flags = struct.unpack('>I', f.read(4))[0]
         # if flags & 0xF0000000 != 0x20000000: # test for mips3
         #     print('Error: Architecture not mips3')
         #     sys.exit(1)
 
-        flags |= 0x00001000 # set EF_MIPS_ABI_O32
-        f.seek(36)
+        # flags |= 0x00001000 # set EF_MIPS_ABI_O32
+        # flags = 0x20001101
+        flags = 0x20002001
+        f.seek(0x24)
         f.write(struct.pack('>I', flags))
 

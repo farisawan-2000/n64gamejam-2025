@@ -14,6 +14,8 @@ const libdragon = @cImport({
     @cInclude("graphics.h");
 });
 
+pub extern "c" fn debugf(format: [*:0]const u8, ...) c_int;
+
 var res = libdragon.RESOLUTION_320x240;
 const bit = libdragon.DEPTH_32_BPP;
 
@@ -53,6 +55,8 @@ fn zig_main() !void {
     const green16 = try read_sprite(std.heap.raw_c_allocator, "rom://green16.sprite");
     const blue16 = try read_sprite(std.heap.raw_c_allocator, "rom://blue16.sprite");
 
+    _ = debugf("all sprites read!\n");
+
     while (true) {
         const disp = libdragon.display_get();
 
@@ -76,7 +80,8 @@ fn zig_main() !void {
         libdragon.display_show(disp);
 
         // libdragon.joypad_poll();
-        // const keys: libdragon.joypad_buttons_t = libdragon.joypad_get_buttons_pressed(libdragon.JOYPAD_PORT_1);
+        // const keys = libdragon.joypad_get_buttons_pressed(libdragon.JOYPAD_PORT_1);
+
 
         // if (keys.d_up != false) {
         //     libdragon.display_close();
@@ -87,8 +92,10 @@ fn zig_main() !void {
 }
 
 pub export fn main() void {
+    _ = libdragon.debug_init_isviewer();
+    _ = debugf("STARTING!\n");
     zig_main() catch {
-        libdragon.debugf("Error!\n");
+        _ = debugf("Error!\n");
     };
 }
 
