@@ -21,6 +21,21 @@ pub extern "c" fn read_sprite(spritename: [*:0]const u8) *libdragon.sprite_t;
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
 
+// fn read_sprite(spritename: []const u8) *libdragon.sprite_t {
+//     var file = std.fs.cwd().openFile(spritename, .{}) catch unreachable;
+//     defer file.close();
+
+//     var buffer = c.malloc(@sizeOf(libdragon.sprite_t));
+//     var file_reader = file.reader(buffer);
+//     const reader = &file_reader.interface;
+
+//     // if you want to keep the newline character use
+//     // reader.takeDelimiterInclusive('\n').
+//     while (reader.takeDelimiterExclusive('\n')) |line| {
+//         std.debug.print("{s}\n", .{line});
+//     } else |_| {}
+// }
+
 fn zig_main() !void {
     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
     _ = libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
