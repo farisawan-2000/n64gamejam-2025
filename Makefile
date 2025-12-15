@@ -23,7 +23,7 @@ ZIG_SRCS := $(wildcard src/*.zig)
 
 OBJS := $(C_SRCS:%.c=$(BUILD_DIR)/%.o) $(ZIG_SRCS:%.zig=$(BUILD_DIR)/%.o)
 
-ZIG_INCLUDES += -I/usr/mips64-elf/include/
+ZIG_INCLUDES += -I/usr/mips64-elf/include/ -Isrc/ -I.
 
 TRANSFORM := -ofmt=c
 # TRANSFORM := -femit-llvm-ir
@@ -49,8 +49,6 @@ $(BUILD_DIR)/game.elf: $(OBJS) | $(BUILD_DIR)/
 clean:
 	@echo "    [CLEAN] build/"
 	rm -rf $(BUILD_DIR)/
-	@echo "    [CLEAN] libdragon-unstable/"
-	$(MAKE) -C libdragon-unstable clean
 
 libs:
 	$(MAKE) -C libdragon-unstable/

@@ -7,6 +7,7 @@ const c = @cImport({
     @cInclude("malloc.h");
     @cInclude("string.h");
     @cInclude("stdint.h");
+    @cInclude("contpad.h");
 });
 
 const libdragon = @cImport({
@@ -15,45 +16,28 @@ const libdragon = @cImport({
 });
 
 pub extern "c" fn debugf(format: [*:0]const u8, ...) c_int;
+pub extern "c" fn read_sprite(spritename: [*:0]const u8) *libdragon.sprite_t;
 
 var res = libdragon.RESOLUTION_320x240;
-const bit = libdragon.DEPTH_32_BPP;
-
-fn filesize(pFile: *c.FILE) usize {
-    _ = c.fseek(pFile, 0, c.SEEK_END);
-    const lSize = c.ftell(pFile);
-    c.rewind(pFile);
-
-    return @intCast(lSize);
-}
-
-fn read_sprite(allocator: Allocator, spritename: [:0]const u8) !*libdragon.sprite_t {
-    const fp: *c.FILE = c.fopen(spritename , "r");
-    defer _ = c.fclose(fp);
-
-    const sp = try allocator.create(libdragon.sprite_t);
-    _ = c.fread(sp, 1, filesize(fp), fp);
-
-    return sp;
-}
+var bit: c_uint = libdragon.DEPTH_32_BPP;
 
 fn zig_main() !void {
     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
     _ = libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
     libdragon.joypad_init();
 
-    const mario = try read_sprite(std.heap.raw_c_allocator, "rom://mario.sprite");
-    const mariotrans = try read_sprite(std.heap.raw_c_allocator, "rom://mariotrans.sprite");
-    const mario16 = try read_sprite(std.heap.raw_c_allocator, "rom://mario16.sprite");
-    const mariotrans16 = try read_sprite(std.heap.raw_c_allocator, "rom://mariotrans16.sprite");
+    const mario = read_sprite("rom://mario.sprite");
+    const mariotrans = read_sprite("rom://mariotrans.sprite");
+    const mario16 = read_sprite("rom://mario16.sprite");
+    const mariotrans16 = read_sprite("rom://mariotrans16.sprite");
 
-    const red = try read_sprite(std.heap.raw_c_allocator, "rom://red.sprite");
-    const green = try read_sprite(std.heap.raw_c_allocator, "rom://green.sprite");
-    const blue = try read_sprite(std.heap.raw_c_allocator, "rom://blue.sprite");
+    const red = read_sprite("rom://red.sprite");
+    const green = read_sprite("rom://green.sprite");
+    const blue = read_sprite("rom://blue.sprite");
 
-    const red16 = try read_sprite(std.heap.raw_c_allocator, "rom://red16.sprite");
-    const green16 = try read_sprite(std.heap.raw_c_allocator, "rom://green16.sprite");
-    const blue16 = try read_sprite(std.heap.raw_c_allocator, "rom://blue16.sprite");
+    const red16 = read_sprite("rom://red16.sprite");
+    const green16 = read_sprite("rom://green16.sprite");
+    const blue16 = read_sprite("rom://blue16.sprite");
 
     _ = debugf("all sprites read!\n");
 
@@ -79,15 +63,38 @@ fn zig_main() !void {
 
         libdragon.display_show(disp);
 
-        // libdragon.joypad_poll();
-        // const keys = libdragon.joypad_get_buttons_pressed(libdragon.JOYPAD_PORT_1);
+        const pad = c.PollController(libdragon.JOYPAD_PORT_1);
 
+        if (pad.d_up != false) {
+            _ = debugf("480i time!\n");
+            libdragon.display_close();
+            res = libdragon.RESOLUTION_640x480;
+            libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+        }
 
-        // if (keys.d_up != false) {
-        //     libdragon.display_close();
-        //     res = libdragon.RESOLUTION_640x480;
-        //     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
-        // }
+        if (pad.d_down != false) {
+            _ = debugf("240p time!\n");
+            libdragon.display_close();
+
+            res = libdragon.RESOLUTION_320x240;
+            libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+        }
+
+        if (pad.d_left != false) {
+            _ = debugf("16bpp time!\n");
+            libdragon.display_close();
+
+            bit = libdragon.DEPTH_16_BPP;
+            libdragon.display_init( res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED );
+        }
+
+        if (pad.d_right != false) {
+            _ = debugf("32bpp time!\n");
+            libdragon.display_close();
+
+            bit = libdragon.DEPTH_32_BPP;
+            libdragon.display_init( res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED );
+        }
     }
 }
 
