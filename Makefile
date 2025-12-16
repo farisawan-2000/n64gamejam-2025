@@ -25,6 +25,8 @@ OBJS := $(C_SRCS:%.c=$(BUILD_DIR)/%.o) $(ZIG_SRCS:%.zig=$(BUILD_DIR)/%.o)
 
 ZIG_INCLUDES += -I/usr/mips64-elf/include/ -Isrc/ -I.
 
+NO_WARNINGS := -Wno-unused-const-variable -Wno-incompatible-pointer-types -Wno-unused-but-set-variable -Wno-main -Wno-return-type
+
 TRANSFORM := -ofmt=c
 # TRANSFORM := -femit-llvm-ir
 # Compile Zig code
@@ -35,7 +37,7 @@ $(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
 	              -target mips-freestanding-gnu -mcpu=mips2 -lc \
 	              $(ZIG_INCLUDES) $(TRANSFORM) -femit-bin=$@.c \
 	              -fomit-frame-pointer
-	$(CC) -c $(CFLAGS) -Wno-incompatible-pointer-types -I /usr/lib/zig/ -o $@ $@.c
+	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ $@.c
 # 	$(N64_OBJCOPY) --remove-section .MIPS.abiflags $@
 # 	$(N64_OBJCOPY) --remove-section .MIPS.options $@
 # 	python3 tools/set_o32abi_bit.py $@

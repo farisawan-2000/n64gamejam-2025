@@ -76,7 +76,7 @@ const raw_c_allocator_vtable: Allocator.VTable = .{
     .free = rawCFree,
 };
 
-pub const game_gen_allocator: Allocator = .{
+pub const gen_allocator: Allocator = .{
     .ptr = undefined,
     .vtable = &raw_c_allocator_vtable,
 };
