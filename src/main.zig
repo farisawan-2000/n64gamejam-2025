@@ -1,6 +1,9 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
+const game = @import("level_allocator.zig");
+const log = @import("logging.zig");
+
 const c = @cImport({
     @cInclude("stdio.h");
     @cInclude("stdlib.h");
@@ -16,25 +19,38 @@ const libdragon = @cImport({
 });
 
 pub extern "c" fn debugf(format: [*:0]const u8, ...) c_int;
-pub extern "c" fn read_sprite(spritename: [*:0]const u8) *libdragon.sprite_t;
+// pub extern "c" fn read_sprite(spritename: [*:0]const u8) *libdragon.sprite_t;
 
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
 
-// fn read_sprite(spritename: []const u8) *libdragon.sprite_t {
-//     var file = std.fs.cwd().openFile(spritename, .{}) catch unreachable;
-//     defer file.close();
+fn filesize(pFile: *c.FILE) c_long
+{
+    _ = c.fseek( pFile, 0, c.SEEK_END );
+    const lSize = c.ftell( pFile );
+    c.rewind( pFile );
 
-//     var buffer = c.malloc(@sizeOf(libdragon.sprite_t));
-//     var file_reader = file.reader(buffer);
-//     const reader = &file_reader.interface;
+    return lSize;
+}
 
-//     // if you want to keep the newline character use
-//     // reader.takeDelimiterInclusive('\n').
-//     while (reader.takeDelimiterExclusive('\n')) |line| {
-//         std.debug.print("{s}\n", .{line});
-//     } else |_| {}
-// }
+fn read_sprite(spritename: [*c]const u8) *libdragon.sprite_t {
+    const file: *c.FILE = c.fopen(spritename, "r");
+    defer _ = c.fclose(file);
+
+    const fsize = filesize(file);
+
+    const buffer: *libdragon.sprite_t = @ptrCast(
+        @alignCast(
+            c.malloc(
+                @intCast(fsize)
+            )
+        )
+    );
+
+    _ = c.fread(buffer, @sizeOf(u8), @intCast(fsize), file);
+
+    return buffer;
+}
 
 fn zig_main() !void {
     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
