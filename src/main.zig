@@ -18,9 +18,6 @@ const libdragon = @cImport({
     @cInclude("graphics.h");
 });
 
-pub extern "c" fn debugf(format: [*:0]const u8, ...) c_int;
-// pub extern "c" fn read_sprite(spritename: [*:0]const u8) *libdragon.sprite_t;
-
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
 
@@ -70,7 +67,7 @@ fn zig_main() !void {
     const green16 = read_sprite("rom://green16.sprite");
     const blue16 = read_sprite("rom://blue16.sprite");
 
-    _ = debugf("all sprites read!\n");
+    log.log("all sprites read!\n");
 
     while (true) {
         const disp = libdragon.display_get();
@@ -97,14 +94,14 @@ fn zig_main() !void {
         const pad = c.PollController(libdragon.JOYPAD_PORT_1);
 
         if (pad.d_up != false) {
-            _ = debugf("480i time!\n");
+            log.log("480i time!\n");
             libdragon.display_close();
             res = libdragon.RESOLUTION_640x480;
             libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
         }
 
         if (pad.d_down != false) {
-            _ = debugf("240p time!\n");
+            log.log("240p time!\n");
             libdragon.display_close();
 
             res = libdragon.RESOLUTION_320x240;
@@ -112,7 +109,7 @@ fn zig_main() !void {
         }
 
         if (pad.d_left != false) {
-            _ = debugf("16bpp time!\n");
+            log.log("16bpp time!\n");
             libdragon.display_close();
 
             bit = libdragon.DEPTH_16_BPP;
@@ -120,7 +117,7 @@ fn zig_main() !void {
         }
 
         if (pad.d_right != false) {
-            _ = debugf("32bpp time!\n");
+            log.log("32bpp time!\n");
             libdragon.display_close();
 
             bit = libdragon.DEPTH_32_BPP;
@@ -131,9 +128,9 @@ fn zig_main() !void {
 
 pub export fn main() void {
     _ = libdragon.debug_init_isviewer();
-    _ = debugf("STARTING!\n");
+    log.log("STARTING!\n");
     zig_main() catch {
-        _ = debugf("Error!\n");
+        log.log("Error!\n");
     };
 }
 
