@@ -70,7 +70,7 @@ $(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
 # 	$(N64_OBJCOPY) --remove-section .MIPS.options $@
 # 	python3 tools/set_o32abi_bit.py $@
 
-$(ROM): N64_ROM_TITLE = "Video game"
+$(ROM): N64_ROM_TITLE = "Credits"
 $(ROM): $(BUILD_DIR)/game.dfs
 
 $(BUILD_DIR)/game.dfs: $(wildcard filesystem/*) $(ASSET_CONV)

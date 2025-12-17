@@ -3,6 +3,7 @@ const Allocator = std.mem.Allocator;
 
 const game = @import("level_allocator.zig");
 const log = @import("logging.zig");
+const assets = @import("assets.zig");
 
 const c = @cImport({
     @cInclude("stdio.h");
@@ -18,8 +19,29 @@ const libdragon = @cImport({
     @cInclude("graphics.h");
 });
 
+const rdpq = @cImport({
+    @cInclude("libdragon.h");
+});
+
+const rspq = @cImport({
+    @cInclude("libdragon.h");
+});
+
+const t3d = @cImport({
+    @cInclude("t3d/t3d.h");
+    @cInclude("t3d/t3dmath.h");
+    @cInclude("t3d/t3dmodel.h");
+    @cInclude("t3d/t3dskeleton.h");
+    @cInclude("t3d/t3danim.h");
+});
+
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
+const FB_COUNT = 3;
+
+fn get_time_s() f32 {
+    return libdragon.get_ticks_us() / 1000000.0;
+}
 
 fn filesize(pFile: *c.FILE) c_long
 {
@@ -51,47 +73,31 @@ fn read_sprite(spritename: [*c]const u8) *libdragon.sprite_t {
 
 fn zig_main() !void {
     libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+    assets.init_compression(2);
     _ = libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
     libdragon.joypad_init();
 
-    const mario = read_sprite("rom://mario.sprite");
-    const mariotrans = read_sprite("rom://mariotrans.sprite");
-    const mario16 = read_sprite("rom://mario16.sprite");
-    const mariotrans16 = read_sprite("rom://mariotrans16.sprite");
+    t3d.t3d_init(.{});
+    rdpq.rdpq_text_register_font(
+        rdpq.FONT_BUILTIN_DEBUG_MONO,
+        rdpq.rdpq_font_load_builtin(rdpq.FONT_BUILTIN_DEBUG_MONO)
+    );
 
-    const red = read_sprite("rom://red.sprite");
-    const green = read_sprite("rom://green.sprite");
-    const blue = read_sprite("rom://blue.sprite");
+    const viewport = t3d.t3d_viewport_create_buffered(FB_COUNT);
 
-    const red16 = read_sprite("rom://red16.sprite");
-    const green16 = read_sprite("rom://green16.sprite");
-    const blue16 = read_sprite("rom://blue16.sprite");
-
-    log.log("all sprites read!\n");
+    var frameIndex = 0;
 
     while (true) {
-        const disp = libdragon.display_get();
-
-        // Display sprite (16bpp ones will only display in 16bpp mode, same with 32bpp)
-        libdragon.graphics_draw_sprite( disp, 20, 150, mario );
-        libdragon.graphics_draw_sprite_trans( disp, 150, 150, mariotrans );
-
-        libdragon.graphics_draw_sprite( disp, 20, 150, mario16 );
-        libdragon.graphics_draw_sprite_trans( disp, 150, 150, mariotrans16 );
-
-        // 32BPP alpha blending test
-        libdragon.graphics_draw_sprite_trans( disp, 150, 20, red );
-        libdragon.graphics_draw_sprite_trans( disp, 170, 20, green );
-        libdragon.graphics_draw_sprite_trans( disp, 160, 30, blue );
-
-        // 16BPP trans test
-        libdragon.graphics_draw_sprite_trans( disp, 150, 20, red16 );
-        libdragon.graphics_draw_sprite_trans( disp, 170, 20, green16 );
-        libdragon.graphics_draw_sprite_trans( disp, 160, 30, blue16 );
-
-        libdragon.display_show(disp);
+        frameIndex += 1;
+        frameIndex = frameIndex % FB_COUNT;
 
         const pad = c.PollController(libdragon.JOYPAD_PORT_1);
+
+        const disp = libdragon.display_get();
+
+
+
+        libdragon.display_show(disp);
 
         if (pad.d_up != false) {
             log.log("480i time!\n");
