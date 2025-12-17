@@ -62,7 +62,7 @@ TRANSFORM := -ofmt=c
 $(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
 	@echo "    [ZIG] $@"
 	zig build-obj $< \
-	              -target mips-freestanding-gnu -mcpu=mips2 -lc \
+	              -target mips-freestanding-gnu -mcpu=mips2 -lc -D__MIPSEB__ -Dwint_t=long \
 	              $(ZIG_INCLUDES) $(TRANSFORM) -femit-bin=$@.c \
 	              -fomit-frame-pointer
 	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ $@.c
