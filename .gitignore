@@ -2,6 +2,7 @@
 zig-out/
 jam2025
 build/
+filesystem/
 
 *.z64
 
