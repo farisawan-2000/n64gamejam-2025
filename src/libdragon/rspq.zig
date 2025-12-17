@@ -1,3 +1,4 @@
+// Basically removing prefixes from functions
 const libdragon = @cImport({
     @cInclude("libdragon.h");
 });

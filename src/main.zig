@@ -100,6 +100,7 @@ fn zig_main() !void {
         rspq.block_begin();
 
 
+        // make the compiler happy while i port
         if (pad.a) {
             log.log("A BUTTON\n");
             log.logU32(@intFromPtr(&viewport));

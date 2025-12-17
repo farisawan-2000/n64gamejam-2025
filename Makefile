@@ -29,7 +29,8 @@ OBJS := $(C_SRCS:%.c=$(BUILD_DIR)/%.o) $(ZIG_SRCS:%.zig=$(BUILD_DIR)/%.o)
 
 ZIG_INCLUDES += -I/usr/mips64-elf/include/ -Isrc/ -I.
 
-NO_WARNINGS := -Wno-unused-const-variable -Wno-incompatible-pointer-types -Wno-unused-but-set-variable -Wno-main -Wno-return-type
+NO_WARNINGS := -Wno-unused-const-variable -Wno-incompatible-pointer-types -Wno-unused-but-set-variable -Wno-main -Wno-return-type \
+               -Wno-unused-function -Wno-unused-variable
 
 assets_png = $(wildcard assets/*.png)
 assets_gltf = $(wildcard assets/*.glb)
