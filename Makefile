@@ -60,8 +60,7 @@ TRANSFORM := -ofmt=c
 # Compile Zig code
 $(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
 	@echo "    [ZIG] $@"
-	cpp -P $(CPPFLAGS) $< -o $(BUILD_DIR)/$*.zig
-	zig build-obj $(BUILD_DIR)/$*.zig \
+	zig build-obj $< \
 	              -target mips-freestanding-gnu -mcpu=mips2 -lc \
 	              $(ZIG_INCLUDES) $(TRANSFORM) -femit-bin=$@.c \
 	              -fomit-frame-pointer

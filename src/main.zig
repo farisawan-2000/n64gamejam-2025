@@ -23,9 +23,7 @@ const rdpq = @cImport({
     @cInclude("libdragon.h");
 });
 
-const rspq = @cImport({
-    @cInclude("libdragon.h");
-});
+const rspq = @import("./libdragon/rspq.zig");
 
 const t3d = @cImport({
     @cInclude("t3d/t3d.h");
@@ -85,11 +83,11 @@ fn zig_main() !void {
 
     const viewport = t3d.t3d_viewport_create_buffered(FB_COUNT);
 
-    var frameIndex = 0;
+    var frameIndex: i32 = 0;
 
     while (true) {
         frameIndex += 1;
-        frameIndex = frameIndex % FB_COUNT;
+        frameIndex = @mod(frameIndex, FB_COUNT);
 
         const pad = c.PollController(libdragon.JOYPAD_PORT_1);
 
@@ -99,36 +97,14 @@ fn zig_main() !void {
 
         libdragon.display_show(disp);
 
-        if (pad.d_up != false) {
-            log.log("480i time!\n");
-            libdragon.display_close();
-            res = libdragon.RESOLUTION_640x480;
-            libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+        rspq.block_begin();
+
+
+        if (pad.a) {
+            log.log("A BUTTON\n");
+            log.logU32(@intFromPtr(&viewport));
         }
 
-        if (pad.d_down != false) {
-            log.log("240p time!\n");
-            libdragon.display_close();
-
-            res = libdragon.RESOLUTION_320x240;
-            libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
-        }
-
-        if (pad.d_left != false) {
-            log.log("16bpp time!\n");
-            libdragon.display_close();
-
-            bit = libdragon.DEPTH_16_BPP;
-            libdragon.display_init( res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED );
-        }
-
-        if (pad.d_right != false) {
-            log.log("32bpp time!\n");
-            libdragon.display_close();
-
-            bit = libdragon.DEPTH_32_BPP;
-            libdragon.display_init( res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED );
-        }
     }
 }
 
