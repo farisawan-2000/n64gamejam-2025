@@ -53,13 +53,16 @@ fn zig_main() !void {
     );
     var viewport = t3d.t3d_viewport_create_buffered(FB_COUNT);
 
-    const camPos: t3d.T3DVec3 = .{.v = .{0, 10.0, 40.0}};
-    const camTarget: t3d.T3DVec3 = .{.v = .{0, 0.0, 0.0}};
+    var camPos: t3d.T3DVec3 = undefined;
+    camPos.v = .{0, 10.0, 40.0};
+    var camTarget: t3d.T3DVec3 = undefined;
+    camTarget.v = .{0, 0.0, 0.0};
 
     const colorAmbient: [4]u8 = .{80, 80, 100, 0xFF};
     const colorDir:     [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
 
-    const lightDirVec: t3d.T3DVec3 = .{.v = .{-1, 1, 1}};
+    var lightDirVec: t3d.T3DVec3 = undefined;
+    lightDirVec.v = .{-1, 1, 1};
 
     const model = t3d.t3d_model_load("rom:/model.t3dm");
 
