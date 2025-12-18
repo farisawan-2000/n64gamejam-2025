@@ -18,7 +18,7 @@ const t3d = @cImport({
     @cInclude("t3d/t3danim.h");
 });
 
-const tiny3d = @import("tiny3d/t3d.zig");
+const Viewport = @import("tiny3d/viewport.zig").Viewport;
 
 const libdragon = @cImport({
     @cInclude("libdragon.h");
@@ -61,7 +61,7 @@ fn zig_main() !void {
             libdragon.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
         )
     );
-    var viewport: tiny3d.Viewport = tiny3d.Viewport.create(FB_COUNT);
+    var viewport: Viewport = Viewport.create(FB_COUNT);
 
     const camPos: [3]f32 = .{0, 10.0, 40.0};
     const camTarget: [3]f32 = .{0, 0.0, 0.0};
