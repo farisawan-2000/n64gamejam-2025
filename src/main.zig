@@ -18,6 +18,8 @@ const t3d = @cImport({
     @cInclude("t3d/t3danim.h");
 });
 
+const tiny3d = @import("tiny3d/t3d.zig");
+
 const libdragon = @cImport({
     @cInclude("libdragon.h");
     @cInclude("graphics.h");
@@ -59,10 +61,10 @@ fn zig_main() !void {
             libdragon.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
         )
     );
-    var viewport = t3d.t3d_viewport_create_buffered(FB_COUNT);
+    var viewport: tiny3d.Viewport = tiny3d.Viewport.create(FB_COUNT);
 
-    const camPos = Vec3(.{0, 10.0, 40.0});
-    const camTarget = Vec3(.{0, 0.0, 0.0});
+    const camPos: [3]f32 = .{0, 10.0, 40.0};
+    const camTarget: [3]f32 = .{0, 0.0, 0.0};
 
     const colorAmbient: [4]u8 = .{80, 80, 100, 0xFF};
     const colorDir:     [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
@@ -86,8 +88,8 @@ fn zig_main() !void {
         rotation -= 0.02;
         const modelScale = 0.1;
 
-        t3d.t3d_viewport_set_projection(&viewport, t3d.T3D_DEG_TO_RAD(85.0), 10.0, 150.0);
-        t3d.t3d_viewport_look_at(&viewport, &camPos, &camTarget, &.{.v = .{0,1,0}});
+        viewport.set_projection(t3d.T3D_DEG_TO_RAD(85.0), 10.0, 150.0);
+        viewport.look_at(camPos, camTarget, .{0,1,0});
 
 
         const scale: [3]f32 = .{modelScale, modelScale, modelScale};
@@ -101,7 +103,7 @@ fn zig_main() !void {
 
         libdragon.rdpq_attach(libdragon.display_get(), libdragon.display_get_zbuf());
         t3d.t3d_frame_start();
-        t3d.t3d_viewport_attach(&viewport);
+        viewport.attach();
 
         t3d.t3d_screen_clear_color(t3d.RGBA32(100, 80, 80, 0xFF));
         t3d.t3d_screen_clear_depth();
