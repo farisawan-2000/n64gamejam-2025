@@ -56,19 +56,14 @@ filesystem/%.t3dm: assets/%.glb
 	$(T3D_GLTF_TO_3D) "$<" $@
 	$(N64_BINDIR)/mkasset -c 2 -w 256 -o filesystem $@
 
-TRANSFORM := -ofmt=c
-# TRANSFORM := -femit-llvm-ir
 # Compile Zig code
 $(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
 	@echo "    [ZIG] $@"
 	zig build-obj $< \
 	              -target mips-freestanding-gnu -mcpu=mips2 -lc -D__MIPSEB__ -Dwint_t=long \
-	              $(ZIG_INCLUDES) $(TRANSFORM) -femit-bin=$@.c \
+	              $(ZIG_INCLUDES) -ofmt=c -femit-bin=$@.c \
 	              -fomit-frame-pointer
 	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ $@.c
-# 	$(N64_OBJCOPY) --remove-section .MIPS.abiflags $@
-# 	$(N64_OBJCOPY) --remove-section .MIPS.options $@
-# 	python3 tools/set_o32abi_bit.py $@
 
 $(ROM): N64_ROM_TITLE = "Credits"
 $(ROM): $(BUILD_DIR)/game.dfs

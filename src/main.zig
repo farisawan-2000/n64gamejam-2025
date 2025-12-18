@@ -1,10 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
-const game = @import("level_allocator.zig");
-const log = @import("logging.zig");
-const assets = @import("assets.zig");
-
 const c = @cImport({
     @cInclude("stdio.h");
     @cInclude("stdlib.h");
@@ -12,6 +8,14 @@ const c = @cImport({
     @cInclude("string.h");
     @cInclude("stdint.h");
     @cInclude("contpad.h");
+});
+
+const t3d = @cImport({
+    @cInclude("t3d/t3d.h");
+    @cInclude("t3d/t3dmath.h");
+    @cInclude("t3d/t3dmodel.h");
+    @cInclude("t3d/t3dskeleton.h");
+    @cInclude("t3d/t3danim.h");
 });
 
 const libdragon = @cImport({
@@ -23,15 +27,19 @@ const rdpq = @cImport({
     @cInclude("libdragon.h");
 });
 
+const game = @import("level_allocator.zig");
+const log = @import("logging.zig");
+const assets = @import("assets.zig");
+const math = @import("math.zig");
+
 const rspq = @import("./libdragon/rspq.zig");
 
-const t3d = @cImport({
-    @cInclude("t3d/t3d.h");
-    @cInclude("t3d/t3dmath.h");
-    @cInclude("t3d/t3dmodel.h");
-    @cInclude("t3d/t3dskeleton.h");
-    @cInclude("t3d/t3danim.h");
-});
+pub fn Vec3(xyz: [3]f32) t3d.T3DVec3 {
+    var ret: t3d.T3DVec3 = undefined;
+    ret.v = .{xyz[0], xyz[1], xyz[2]};
+
+    return ret;
+}
 
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
@@ -53,16 +61,13 @@ fn zig_main() !void {
     );
     var viewport = t3d.t3d_viewport_create_buffered(FB_COUNT);
 
-    var camPos: t3d.T3DVec3 = undefined;
-    camPos.v = .{0, 10.0, 40.0};
-    var camTarget: t3d.T3DVec3 = undefined;
-    camTarget.v = .{0, 0.0, 0.0};
+    const camPos = Vec3(.{0, 10.0, 40.0});
+    const camTarget = Vec3(.{0, 0.0, 0.0});
 
     const colorAmbient: [4]u8 = .{80, 80, 100, 0xFF};
     const colorDir:     [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
 
-    var lightDirVec: t3d.T3DVec3 = undefined;
-    lightDirVec.v = .{-1, 1, 1};
+    const lightDirVec = Vec3(.{-1, 1, 1});
 
     const model = t3d.t3d_model_load("rom:/model.t3dm");
 
