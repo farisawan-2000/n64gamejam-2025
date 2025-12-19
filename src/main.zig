@@ -28,6 +28,7 @@ const Transform = @import("tiny3d/transform.zig").Transform;
 
 const libdragon = @import("libdragon/libdragon.zig");
 const rspq = @import("libdragon/rspq.zig");
+const rdpq = @import("libdragon/rdpq.zig");
 
 const game = @import("level_allocator.zig");
 const log = @import("logging.zig");
@@ -103,7 +104,7 @@ fn zig_main() !void {
             &move
         );
 
-        libdragon.c.rdpq_attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
+        rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
         viewport.attach();
 
@@ -126,7 +127,7 @@ fn zig_main() !void {
         // for the actual draw, you can use the generic rspq-api.
         rspq.block_run(drawBlock);
 
-        libdragon.c.rdpq_detach_show();
+        rdpq.detach_show();
 
         const pad = c.PollController(libdragon.c.JOYPAD_PORT_1);
 
