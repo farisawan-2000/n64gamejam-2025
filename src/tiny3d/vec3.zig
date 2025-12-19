@@ -1,7 +1,5 @@
 const t3d = @import("t3d.zig");
 
-
-
 pub const Vec3 = struct {
     xyz: [3]f32,
 

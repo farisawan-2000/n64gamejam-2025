@@ -13,9 +13,17 @@ const Vec3 = @import("vec3.zig").Vec3;
 //               INTERMEDIATE GLUE
 //---------------------------------------------
 
-pub fn light_set_directional(index: i32, color: *const [4]u8, direction: Vec3) void {
+pub fn light_set_ambient(color: [4] u8) void {
+    c.t3d_light_set_ambient(&color);
+}
+
+pub fn light_set_directional(index: i32, color: [4]u8, direction: Vec3) void {
     var direction_t3d = direction.export_t3d();
-    c.t3d_light_set_directional(index, color, &direction_t3d);
+    c.t3d_light_set_directional(index, &color, &direction_t3d);
+}
+
+pub fn light_set_count(count: i32) void {
+    c.t3d_light_set_count(count);
 }
 
 //---------------------------------------------

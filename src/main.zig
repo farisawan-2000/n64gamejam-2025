@@ -24,6 +24,7 @@ const Viewport = @import("tiny3d/viewport.zig").Viewport;
 const Model = @import("tiny3d/model.zig").Model;
 const Screen = @import("tiny3d/screen.zig").Screen;
 const Vec3 = @import("tiny3d/vec3.zig").Vec3;
+const Transform = @import("tiny3d/transform.zig").Transform;
 
 const libdragon = @import("libdragon/libdragon.zig");
 const rspq = @import("libdragon/rspq.zig");
@@ -79,7 +80,7 @@ fn zig_main() !void {
     var madeBlock: bool = false;
 
     const screen = Screen.make(.{
-            100, 80, 80, 0xFF
+        100, 80, 80, 0xFF
     });
 
     while (true) {
@@ -109,21 +110,21 @@ fn zig_main() !void {
         screen.clear();
         screen.clear_depth();
 
-        t3d.t3d_light_set_ambient(&ambientLightColor);
-        tiny3d.light_set_directional(0, &directionalLightColor, lightDirVec);
-        t3d.t3d_light_set_count(1);
+        tiny3d.light_set_ambient(ambientLightColor);
+        tiny3d.light_set_directional(0, directionalLightColor, lightDirVec);
+        tiny3d.light_set_count(1);
 
-        if(madeBlock == false) {
-            libdragon.c.rspq_block_begin();
+        if (madeBlock == false) {
+            rspq.block_begin();
                 model.draw();
                 tiny3d.matrix_pop(1);
-            drawBlock = libdragon.c.rspq_block_end().?;
+            drawBlock = rspq.block_end();
             madeBlock = true;
         }
 
         t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
         // for the actual draw, you can use the generic rspq-api.
-        libdragon.c.rspq_block_run(drawBlock);
+        rspq.block_run(drawBlock);
 
         libdragon.c.rdpq_detach_show();
 
@@ -134,7 +135,6 @@ fn zig_main() !void {
             log.log("A BUTTON\n");
             log.logU32(@intFromPtr(&viewport));
         }
-
     }
 }
 
