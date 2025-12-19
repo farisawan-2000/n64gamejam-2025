@@ -23,6 +23,7 @@ const tiny3d = @import("tiny3d/t3d.zig");
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
 const Model = @import("tiny3d/model.zig").Model;
 const Screen = @import("tiny3d/screen.zig").Screen;
+const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 
 const libdragon = @cImport({
     @cInclude("libdragon.h");
@@ -39,13 +40,6 @@ const assets = @import("assets.zig");
 const math = @import("math.zig");
 
 const rspq = @import("./libdragon/rspq.zig");
-
-pub fn Vec3(xyz: [3]f32) t3d.T3DVec3 {
-    var ret: t3d.T3DVec3 = undefined;
-    ret.v = .{xyz[0], xyz[1], xyz[2]};
-
-    return ret;
-}
 
 var res = libdragon.RESOLUTION_320x240;
 var bit: c_uint = libdragon.DEPTH_32_BPP;
@@ -67,17 +61,23 @@ fn zig_main() !void {
     );
     var viewport: Viewport = Viewport.create(FB_COUNT);
 
-    const camPos: [3]f32 = .{0, 10.0, 40.0};
-    const camTarget: [3]f32 = .{0, 0.0, 0.0};
+    const camPos: Vec3 = .{
+        .xyz = .{0, 10.0, 40.0}
+    };
+    const camTarget: Vec3 = .{
+        .xyz = .{0, 0.0, 0.0}
+    };
 
-    const colorAmbient: [4]u8 = .{80, 80, 100, 0xFF};
-    const colorDir:     [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
+    const ambientLightColor:     [4]u8 = .{80, 80, 100, 0xFF};
+    const directionalLightColor: [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
 
-    const lightDirVec = Vec3(.{-1, 1, 1});
+    const lightDirVec: Vec3 = .{
+        .xyz = .{-1, 1, 1}
+    };
 
     const model = Model.load("rom:/model.t3dm");
 
-    t3d.t3d_vec3_norm(@constCast(&lightDirVec));
+    lightDirVec.normalize();
 
     var frameIndex: i32 = 0;
 
@@ -97,7 +97,7 @@ fn zig_main() !void {
         const modelScale = 0.1;
 
         viewport.set_projection(t3d.T3D_DEG_TO_RAD(85.0), 10.0, 150.0);
-        viewport.look_at(camPos, camTarget, .{0,1,0});
+        viewport.look_at(camPos, camTarget, .{.xyz = .{0,1,0}});
 
 
         const scale: [3]f32 = .{modelScale, modelScale, modelScale};
@@ -116,8 +116,8 @@ fn zig_main() !void {
         screen.clear();
         screen.clear_depth();
 
-        t3d.t3d_light_set_ambient(&colorAmbient);
-        t3d.t3d_light_set_directional(0, &colorDir, &lightDirVec);
+        t3d.t3d_light_set_ambient(&ambientLightColor);
+        tiny3d.light_set_directional(0, &directionalLightColor, lightDirVec);
         t3d.t3d_light_set_count(1);
 
         if(madeBlock == false) {
