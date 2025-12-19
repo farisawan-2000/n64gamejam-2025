@@ -25,38 +25,31 @@ const Model = @import("tiny3d/model.zig").Model;
 const Screen = @import("tiny3d/screen.zig").Screen;
 const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 
-const libdragon = @cImport({
-    @cInclude("libdragon.h");
-    @cInclude("graphics.h");
-});
-
-const rdpq = @cImport({
-    @cInclude("libdragon.h");
-});
+const libdragon = @import("libdragon/libdragon.zig");
+const rspq = @import("libdragon/rspq.zig");
 
 const game = @import("level_allocator.zig");
 const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
 
-const rspq = @import("./libdragon/rspq.zig");
 
-var res = libdragon.RESOLUTION_320x240;
-var bit: c_uint = libdragon.DEPTH_32_BPP;
+var res = libdragon.c.RESOLUTION_320x240;
+var bit: c_uint = libdragon.c.DEPTH_32_BPP;
 const FB_COUNT = 3;
 
 fn zig_main() !void {
-    libdragon.display_init(res, bit, 2, libdragon.GAMMA_NONE, libdragon.FILTERS_DISABLED);
+    libdragon.c.display_init(res, bit, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
     assets.init_compression(2);
-    _ = libdragon.dfs_init(libdragon.DFS_DEFAULT_LOCATION);
-    libdragon.joypad_init();
+    _ = libdragon.c.dfs_init(libdragon.c.DFS_DEFAULT_LOCATION);
+    libdragon.c.joypad_init();
 
-    libdragon.rdpq_init();
+    libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
     const modelMatQ: *[3]t3d.T3DMat4FP = @alignCast(
         @ptrCast(
-            libdragon.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
+            libdragon.c.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
         )
     );
     var viewport: Viewport = Viewport.create(FB_COUNT);
@@ -82,7 +75,7 @@ fn zig_main() !void {
     var frameIndex: i32 = 0;
 
     var rotation: f32 = 0;
-    var drawBlock: *libdragon.rspq_block_t = undefined;
+    var drawBlock: *libdragon.c.rspq_block_t = undefined;
     var madeBlock: bool = false;
 
     const screen = Screen.make(.{
@@ -109,7 +102,7 @@ fn zig_main() !void {
             &move
         );
 
-        libdragon.rdpq_attach(libdragon.display_get(), libdragon.display_get_zbuf());
+        libdragon.c.rdpq_attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
         viewport.attach();
 
@@ -121,20 +114,20 @@ fn zig_main() !void {
         t3d.t3d_light_set_count(1);
 
         if(madeBlock == false) {
-            libdragon.rspq_block_begin();
+            libdragon.c.rspq_block_begin();
                 model.draw();
                 tiny3d.matrix_pop(1);
-            drawBlock = libdragon.rspq_block_end().?;
+            drawBlock = libdragon.c.rspq_block_end().?;
             madeBlock = true;
         }
 
         t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
         // for the actual draw, you can use the generic rspq-api.
-        libdragon.rspq_block_run(drawBlock);
+        libdragon.c.rspq_block_run(drawBlock);
 
-        libdragon.rdpq_detach_show();
+        libdragon.c.rdpq_detach_show();
 
-        const pad = c.PollController(libdragon.JOYPAD_PORT_1);
+        const pad = c.PollController(libdragon.c.JOYPAD_PORT_1);
 
         // make the compiler happy while i port
         if (pad.a) {
@@ -146,7 +139,7 @@ fn zig_main() !void {
 }
 
 pub export fn main() void {
-    _ = libdragon.debug_init_isviewer();
+    _ = libdragon.c.debug_init_isviewer();
     log.log("STARTING!\n");
     zig_main() catch {
         log.log("Error!\n");
