@@ -54,6 +54,9 @@ fn zig_main() !void {
             libdragon.c.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
         )
     );
+
+    var modeltransforms: [3]Transform = undefined;
+
     var viewport: Viewport = Viewport.create(FB_COUNT);
 
     const camPos: Vec3 = .{
@@ -74,7 +77,7 @@ fn zig_main() !void {
 
     lightDirVec.normalize();
 
-    var frameIndex: i32 = 0;
+    var frameIndex: u32 = 0;
 
     var rotation: f32 = 0;
     var drawBlock: *libdragon.c.rspq_block_t = undefined;
@@ -98,7 +101,14 @@ fn zig_main() !void {
         const scale: [3]f32 = .{modelScale, modelScale, modelScale};
         const rot: [3]f32 = .{0.0, rotation*0.2, rotation};
         const move: [3]f32 = .{0,0,0};
-        t3d.t3d_mat4fp_from_srt_euler(&modelMatQ[@bitCast(frameIndex)],
+
+        modeltransforms[frameIndex].setup(
+            .{modelScale, modelScale, modelScale},
+            .{0.0, rotation*0.2, rotation},
+            .{0,0,0}
+        );
+
+        t3d.t3d_mat4fp_from_srt_euler(&modelMatQ[frameIndex],
             &scale,
             &rot,
             &move
@@ -123,7 +133,8 @@ fn zig_main() !void {
             madeBlock = true;
         }
 
-        t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
+        // modeltransforms[frameIndex].push();
+        // t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
         // for the actual draw, you can use the generic rspq-api.
         rspq.block_run(drawBlock);
 

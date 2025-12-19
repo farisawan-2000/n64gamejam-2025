@@ -16,6 +16,12 @@ pub const Transform = struct {
         return ret;
     }
 
+    pub fn setup(self: *Transform, scale: [3]f32, rotation: [3]f32, translation: [3]f32) void {
+        self.scale = scale;
+        self.rotation = rotation;
+        self.translation = translation;
+    }
+
     pub fn push(self: *const Transform) void {
         var exported_matrix = self.export_t3d_mat4_fixedpoint();
         t3d.c.t3d_matrix_push(&exported_matrix);
