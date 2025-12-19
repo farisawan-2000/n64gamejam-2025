@@ -18,7 +18,10 @@ const t3d = @cImport({
     @cInclude("t3d/t3danim.h");
 });
 
+const tiny3d = @import("tiny3d/t3d.zig");
+
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
+const Model = @import("tiny3d/model.zig").Model;
 
 const libdragon = @cImport({
     @cInclude("libdragon.h");
@@ -54,7 +57,7 @@ fn zig_main() !void {
     libdragon.joypad_init();
 
     libdragon.rdpq_init();
-    t3d.t3d_init(.{});
+    tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
     const modelMatQ: *[3]t3d.T3DMat4FP = @alignCast(
         @ptrCast(
@@ -71,7 +74,7 @@ fn zig_main() !void {
 
     const lightDirVec = Vec3(.{-1, 1, 1});
 
-    const model = t3d.t3d_model_load("rom:/model.t3dm");
+    const model = Model.load("rom:/model.t3dm");
 
     t3d.t3d_vec3_norm(@constCast(&lightDirVec));
 
@@ -114,7 +117,7 @@ fn zig_main() !void {
 
         if(madeBlock == false) {
             libdragon.rspq_block_begin();
-                t3d.t3d_model_draw(model);
+                model.draw();
                 t3d.t3d_matrix_pop(1);
             drawBlock = libdragon.rspq_block_end().?;
             madeBlock = true;
