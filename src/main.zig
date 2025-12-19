@@ -22,6 +22,7 @@ const tiny3d = @import("tiny3d/t3d.zig");
 
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
 const Model = @import("tiny3d/model.zig").Model;
+const Screen = @import("tiny3d/screen.zig").Screen;
 
 const libdragon = @cImport({
     @cInclude("libdragon.h");
@@ -84,6 +85,10 @@ fn zig_main() !void {
     var drawBlock: *libdragon.rspq_block_t = undefined;
     var madeBlock: bool = false;
 
+    const screen = Screen.make(.{
+            100, 80, 80, 0xFF
+    });
+
     while (true) {
         frameIndex += 1;
         frameIndex = @mod(frameIndex, FB_COUNT);
@@ -105,11 +110,11 @@ fn zig_main() !void {
         );
 
         libdragon.rdpq_attach(libdragon.display_get(), libdragon.display_get_zbuf());
-        t3d.t3d_frame_start();
+        tiny3d.frame_start();
         viewport.attach();
 
-        t3d.t3d_screen_clear_color(t3d.RGBA32(100, 80, 80, 0xFF));
-        t3d.t3d_screen_clear_depth();
+        screen.clear();
+        screen.clear_depth();
 
         t3d.t3d_light_set_ambient(&colorAmbient);
         t3d.t3d_light_set_directional(0, &colorDir, &lightDirVec);
@@ -118,7 +123,7 @@ fn zig_main() !void {
         if(madeBlock == false) {
             libdragon.rspq_block_begin();
                 model.draw();
-                t3d.t3d_matrix_pop(1);
+                tiny3d.matrix_pop(1);
             drawBlock = libdragon.rspq_block_end().?;
             madeBlock = true;
         }

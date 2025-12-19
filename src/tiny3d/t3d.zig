@@ -19,4 +19,11 @@ pub fn init(mtx_stack_size: i32) void {
     );
 }
 
+pub fn frame_start() void {
+    c.t3d_frame_start();
+}
+
+pub fn matrix_pop(count: i32) void {
+    c.t3d_matrix_pop(count);
+}
 
