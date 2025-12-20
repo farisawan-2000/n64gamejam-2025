@@ -1,5 +1,5 @@
 const t3d = @import("t3d.zig");
-
+const log = @import("../logging.zig");
 
 
 pub const Transform = struct {
@@ -7,13 +7,20 @@ pub const Transform = struct {
     rotation:    [3]f32,
     translation: [3]f32,
 
+    matrix: *t3d.c.T3DMat4FP,
+    matrixAllocated: bool = false,
+
+    pub fn init(self: *Transform) void {
+        self.matrix = @alignCast(
+            @ptrCast(
+                t3d.c.malloc_uncached(@sizeOf(t3d.c.T3DMat4FP))
+            )
+        );
+    }
+
     // export to fixed point
-    fn export_t3d_mat4_fixedpoint(self: *const Transform) t3d.c.T3DMat4FP {
-        var ret: t3d.c.T3DMat4FP = undefined;
-
-        t3d.c.t3d_mat4fp_from_srt_euler(&ret, &self.scale, &self.rotation, &self.translation);
-
-        return ret;
+    fn setup_t3d_mat4_fixedpoint(self: *Transform) void {
+        t3d.c.t3d_mat4fp_from_srt_euler(self.matrix, &self.scale, &self.rotation, &self.translation);
     }
 
     pub fn setup(self: *Transform, scale: [3]f32, rotation: [3]f32, translation: [3]f32) void {
@@ -22,8 +29,8 @@ pub const Transform = struct {
         self.translation = translation;
     }
 
-    pub fn push(self: *const Transform) void {
-        var exported_matrix = self.export_t3d_mat4_fixedpoint();
-        t3d.c.t3d_matrix_push(&exported_matrix);
+    pub fn push(self: *Transform) void {
+        self.setup_t3d_mat4_fixedpoint();
+        t3d.c.t3d_matrix_push(self.matrix);
     }
 };

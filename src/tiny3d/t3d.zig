@@ -13,6 +13,10 @@ const Vec3 = @import("vec3.zig").Vec3;
 //               INTERMEDIATE GLUE
 //---------------------------------------------
 
+pub fn DEG_TO_RAD(degree: f32) f32 {
+    return c.T3D_DEG_TO_RAD(degree);
+}
+
 pub fn light_set_ambient(color: [4] u8) void {
     c.t3d_light_set_ambient(&color);
 }

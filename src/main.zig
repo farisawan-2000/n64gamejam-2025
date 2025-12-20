@@ -40,6 +40,7 @@ var res = libdragon.c.RESOLUTION_320x240;
 var bit: c_uint = libdragon.c.DEPTH_32_BPP;
 const FB_COUNT = 3;
 
+
 fn zig_main() !void {
     libdragon.c.display_init(res, bit, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
     assets.init_compression(2);
@@ -49,13 +50,23 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    const modelMatQ: *[3]t3d.T3DMat4FP = @alignCast(
-        @ptrCast(
-            libdragon.c.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
-        )
-    );
+    // const modelMatQ: *[FB_COUNT]t3d.T3DMat4FP = @alignCast(
+    //     @ptrCast(
+    //         libdragon.c.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
+    //     )
+    // );
 
-    var modeltransforms: [3]Transform = undefined;
+    // log.logU32(@intFromPtr(modelMatQ));
+
+    var modeltransforms: [FB_COUNT]Transform = undefined;
+    for (&modeltransforms) |*transform| {
+        transform.init();
+    }
+    // @alignCast(
+    //     @ptrCast(
+    //         libdragon.c.malloc_uncached(@sizeOf(Transform) * FB_COUNT)
+    //     )
+    // );
 
     var viewport: Viewport = Viewport.create(FB_COUNT);
 
@@ -94,13 +105,8 @@ fn zig_main() !void {
         rotation -= 0.02;
         const modelScale = 0.1;
 
-        viewport.set_projection(t3d.T3D_DEG_TO_RAD(85.0), 10.0, 150.0);
+        viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         viewport.look_at(camPos, camTarget, .{.xyz = .{0,1,0}});
-
-
-        const scale: [3]f32 = .{modelScale, modelScale, modelScale};
-        const rot: [3]f32 = .{0.0, rotation*0.2, rotation};
-        const move: [3]f32 = .{0,0,0};
 
         modeltransforms[frameIndex].setup(
             .{modelScale, modelScale, modelScale},
@@ -108,11 +114,15 @@ fn zig_main() !void {
             .{0,0,0}
         );
 
-        t3d.t3d_mat4fp_from_srt_euler(&modelMatQ[frameIndex],
-            &scale,
-            &rot,
-            &move
-        );
+
+        // const scale: [3]f32 = .{modelScale, modelScale, modelScale};
+        // const rot: [3]f32 = .{0.0, rotation*0.2, rotation};
+        // const move: [3]f32 = .{0,0,0};
+        // t3d.t3d_mat4fp_from_srt_euler(&modelMatQ[frameIndex],
+        //     &scale,
+        //     &rot,
+        //     &move
+        // );
 
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
@@ -133,7 +143,7 @@ fn zig_main() !void {
             madeBlock = true;
         }
 
-        // modeltransforms[frameIndex].push();
+        modeltransforms[frameIndex].push();
         // t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
         // for the actual draw, you can use the generic rspq-api.
         rspq.block_run(drawBlock);
