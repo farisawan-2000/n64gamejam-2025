@@ -50,23 +50,7 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    // const modelMatQ: *[FB_COUNT]t3d.T3DMat4FP = @alignCast(
-    //     @ptrCast(
-    //         libdragon.c.malloc_uncached(@sizeOf(t3d.T3DMat4FP) * FB_COUNT)
-    //     )
-    // );
-
-    // log.logU32(@intFromPtr(modelMatQ));
-
-    var modeltransforms: [FB_COUNT]Transform = undefined;
-    for (&modeltransforms) |*transform| {
-        transform.init();
-    }
-    // @alignCast(
-    //     @ptrCast(
-    //         libdragon.c.malloc_uncached(@sizeOf(Transform) * FB_COUNT)
-    //     )
-    // );
+    var modeltransforms = [_]Transform{ Transform.init() } ** FB_COUNT;
 
     var viewport: Viewport = Viewport.create(FB_COUNT);
 
@@ -114,16 +98,6 @@ fn zig_main() !void {
             .{0,0,0}
         );
 
-
-        // const scale: [3]f32 = .{modelScale, modelScale, modelScale};
-        // const rot: [3]f32 = .{0.0, rotation*0.2, rotation};
-        // const move: [3]f32 = .{0,0,0};
-        // t3d.t3d_mat4fp_from_srt_euler(&modelMatQ[frameIndex],
-        //     &scale,
-        //     &rot,
-        //     &move
-        // );
-
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
         viewport.attach();
@@ -144,7 +118,6 @@ fn zig_main() !void {
         }
 
         modeltransforms[frameIndex].push();
-        // t3d.t3d_matrix_push(&modelMatQ[@bitCast(frameIndex)]);
         // for the actual draw, you can use the generic rspq-api.
         rspq.block_run(drawBlock);
 

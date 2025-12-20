@@ -8,14 +8,18 @@ pub const Transform = struct {
     translation: [3]f32,
 
     matrix: *t3d.c.T3DMat4FP,
-    matrixAllocated: bool = false,
 
-    pub fn init(self: *Transform) void {
-        self.matrix = @alignCast(
-            @ptrCast(
-                t3d.c.malloc_uncached(@sizeOf(t3d.c.T3DMat4FP))
-            )
-        );
+    pub fn init() Transform {
+        return .{
+            .scale = .{1, 1, 1},
+            .rotation = .{0, 0, 0},
+            .translation = .{0, 0, 0},
+            .matrix = @alignCast(
+                @ptrCast(
+                    t3d.c.malloc_uncached(@sizeOf(t3d.c.T3DMat4FP))
+                )
+            ),
+        };
     }
 
     // export to fixed point
