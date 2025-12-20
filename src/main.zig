@@ -90,11 +90,8 @@ fn zig_main() !void {
         viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         viewport.look_at(camPos, camTarget, .{.xyz = .{0,1,0}});
 
-        model.transform(
-            .{modelScale, modelScale, modelScale},
-            .{0.0, rotation*0.2, rotation},
-            .{0,0,0}
-        );
+        model.scale(modelScale);
+        model.rotate(.{0.0, rotation*0.2, rotation});
 
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();

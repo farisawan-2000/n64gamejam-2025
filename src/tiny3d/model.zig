@@ -10,7 +10,7 @@ pub const Model = struct {
     t3dmodel: *t3d.c.T3DModel,
     data: *libdragon.c.rspq_block_t,
     firstDraw: bool,
-    matrix: [constants.FB_COUNT]Transform,
+    transform: [constants.FB_COUNT]Transform,
     frameIndex: u32,
 
     pub fn load(path: [:0]const u8) Model {
@@ -18,21 +18,29 @@ pub const Model = struct {
             .data = undefined,
             .firstDraw = false,
             .t3dmodel = t3d.c.t3d_model_load(path),
-            .matrix = [_]Transform{ Transform.init() } ** constants.FB_COUNT,
+            .transform = [_]Transform{ Transform.init() } ** constants.FB_COUNT,
             .frameIndex = 0,
         };
     }
 
-    pub fn transform(self: *Model,
-        scale: [3]f32,
+    pub fn scale(self: *Model, newScale: f32) void {
+        self.transform[self.frameIndex].scale = [_]f32{ newScale } ** 3;
+    }
+
+    pub fn rotate(self: *Model, rotation_xyz: [3]f32) void {
+        self.transform[self.frameIndex].rotation = rotation_xyz;
+    }
+
+    pub fn transformSRT(self: *Model,
+        newScale: [3]f32,
         rotation: [3]f32,
         translation: [3]f32
     ) void {
-        self.matrix[self.frameIndex].setup(scale, rotation, translation);
+        self.transform[self.frameIndex].setup(newScale, rotation, translation);
     }
 
     pub fn draw(self: *Model) void {
-        self.matrix[self.frameIndex].push();
+        self.transform[self.frameIndex].push();
 
         if (self.firstDraw == false) {
             rspq.block_begin();
