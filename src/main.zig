@@ -50,8 +50,6 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    var modeltransforms = [_]Transform{ Transform.init() } ** FB_COUNT;
-
     var viewport: Viewport = Viewport.create(FB_COUNT);
 
     const camPos: Vec3 = .{
@@ -68,15 +66,15 @@ fn zig_main() !void {
         .xyz = .{-1, 1, 1}
     };
 
-    const model = Model.load("rom:/model.t3dm");
+    var model = Model.load("rom:/model.t3dm");
 
     lightDirVec.normalize();
 
     var frameIndex: u32 = 0;
 
     var rotation: f32 = 0;
-    var drawBlock: *libdragon.c.rspq_block_t = undefined;
-    var madeBlock: bool = false;
+    // var drawBlock: *libdragon.c.rspq_block_t = undefined;
+    // var madeBlock: bool = false;
 
     const screen = Screen.make(.{
         100, 80, 80, 0xFF
@@ -92,7 +90,7 @@ fn zig_main() !void {
         viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         viewport.look_at(camPos, camTarget, .{.xyz = .{0,1,0}});
 
-        modeltransforms[frameIndex].setup(
+        model.transform(
             .{modelScale, modelScale, modelScale},
             .{0.0, rotation*0.2, rotation},
             .{0,0,0}
@@ -109,17 +107,7 @@ fn zig_main() !void {
         tiny3d.light_set_directional(0, directionalLightColor, lightDirVec);
         tiny3d.light_set_count(1);
 
-        if (madeBlock == false) {
-            rspq.block_begin();
-                model.draw();
-                tiny3d.matrix_pop(1);
-            drawBlock = rspq.block_end();
-            madeBlock = true;
-        }
-
-        modeltransforms[frameIndex].push();
-        // for the actual draw, you can use the generic rspq-api.
-        rspq.block_run(drawBlock);
+        model.draw();
 
         rdpq.detach_show();
 
@@ -140,4 +128,3 @@ pub export fn main() void {
         log.log("Error!\n");
     };
 }
-
