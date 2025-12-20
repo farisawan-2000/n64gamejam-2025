@@ -30,7 +30,6 @@ const libdragon = @import("libdragon/libdragon.zig");
 const rspq = libdragon.rspq;
 const rdpq = libdragon.rdpq;
 
-const game = @import("level_allocator.zig");
 const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
