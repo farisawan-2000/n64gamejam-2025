@@ -70,20 +70,13 @@ fn zig_main() !void {
 
     lightDirVec.normalize();
 
-    var frameIndex: u32 = 0;
-
     var rotation: f32 = 0;
-    // var drawBlock: *libdragon.c.rspq_block_t = undefined;
-    // var madeBlock: bool = false;
 
     const screen = Screen.make(.{
         100, 80, 80, 0xFF
     });
 
     while (true) {
-        frameIndex += 1;
-        frameIndex = @mod(frameIndex, FB_COUNT);
-
         rotation -= 0.02;
         const modelScale = 0.1;
 
