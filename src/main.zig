@@ -1,6 +1,8 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
+const constants = @import("constants.zig");
+
 const c = @cImport({
     @cInclude("stdio.h");
     @cInclude("stdlib.h");
@@ -34,14 +36,8 @@ const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
 
-
-var res = libdragon.c.RESOLUTION_320x240;
-var bit: c_uint = libdragon.c.DEPTH_32_BPP;
-const FB_COUNT = 3;
-
-
 fn zig_main() !void {
-    libdragon.c.display_init(res, bit, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
+    libdragon.c.display_init(libdragon.c.RESOLUTION_320x240, libdragon.c.DEPTH_32_BPP, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
     assets.init_compression(2);
     _ = libdragon.c.dfs_init(libdragon.c.DFS_DEFAULT_LOCATION);
     libdragon.c.joypad_init();
@@ -49,7 +45,7 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    var viewport: Viewport = Viewport.create(FB_COUNT);
+    var viewport: Viewport = Viewport.create(constants.FB_COUNT);
 
     const camPos: Vec3 = .{
         .xyz = .{0, 10.0, 40.0}
