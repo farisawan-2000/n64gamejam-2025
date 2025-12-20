@@ -27,8 +27,8 @@ const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 const Transform = @import("tiny3d/transform.zig").Transform;
 
 const libdragon = @import("libdragon/libdragon.zig");
-const rspq = @import("libdragon/rspq.zig");
-const rdpq = @import("libdragon/rdpq.zig");
+const rspq = libdragon.rspq;
+const rdpq = libdragon.rdpq;
 
 const game = @import("level_allocator.zig");
 const log = @import("logging.zig");

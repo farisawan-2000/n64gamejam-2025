@@ -10,11 +10,11 @@ pub const Level = struct {
     //  - 
     //  - 
 
-    pub fn init() Level {
-
+    pub fn init(path: [:0]u8) Level {
+        _ = path;
     }
 
-    pub fn tick() void {
+    pub fn destroy() void {
         // 
     }
 };

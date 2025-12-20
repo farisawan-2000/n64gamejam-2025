@@ -1,8 +1,9 @@
 const constants = @import("../constants.zig");
 
 const libdragon = @import("../libdragon/libdragon.zig");
-const rspq = @import("../libdragon/rspq.zig");
-const rdpq = @import("../libdragon/rdpq.zig");
+const rspq = libdragon.rspq;
+const rdpq = libdragon.rdpq;
+
 const t3d = @import("t3d.zig");
 const Transform = @import("transform.zig").Transform;
 
