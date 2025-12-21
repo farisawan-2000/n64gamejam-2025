@@ -29,8 +29,6 @@ pub const Camera = struct {
     }
 
     pub fn update(self: *Camera) void {
-        log.logVec(self.pos);
-        log.logVec(self.look);
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
