@@ -47,6 +47,11 @@ fn zig_main() !void {
         .xyz = .{0, 0.0, 0.0}
     };
 
+    // var cam = Camera.init(
+    //     .{0, 10.0, 40.0},
+    //     .{0, 0.0, 0.0}
+    // );
+
     const ambientLightColor:     [4]u8 = .{80, 80, 100, 0xFF};
     const directionalLightColor: [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
 
