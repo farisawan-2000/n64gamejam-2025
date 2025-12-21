@@ -23,12 +23,13 @@ const libdragon = @import("libdragon/libdragon.zig");
 const rspq = libdragon.rspq;
 const rdpq = libdragon.rdpq;
 
+const game = @import("game.zig");
 const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
 const objcode = @import("object_code.zig");
-const Object = @import("object.zig").Object;
-const Camera = @import("camera.zig").Camera;
+const Object = game.Object;
+const Camera = game.Camera;
 
 fn zig_main() !void {
     libdragon.c.display_init(libdragon.c.RESOLUTION_320x240, libdragon.c.DEPTH_32_BPP, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
