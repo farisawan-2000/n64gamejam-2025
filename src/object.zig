@@ -11,6 +11,10 @@ pub const Object = struct {
     rot: [3]f32,
     scale: [3]f32,
 
+    // User data:
+    data: [8]u32,
+    dataF: [8]f32,
+
 
     pub fn init(
         initFPtr: *const fn(o: *Object) void,
@@ -25,6 +29,9 @@ pub const Object = struct {
             .pos = .{0, 0, 0},
             .rot = .{0, 0, 0},
             .scale = .{1, 1, 1},
+
+            .data = [_]u32{ 0 } ** 8,
+            .dataF = [_]f32{ 0 } ** 8,
         };
     }
 

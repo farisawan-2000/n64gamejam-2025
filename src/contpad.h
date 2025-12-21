@@ -9,7 +9,8 @@
  *  bitfields, unions, and substructs.
  *  We just flatten everything here.
  */
-typedef struct ContPad {
+
+struct Buttons {
     bool a;
     bool b;
     bool z;
@@ -26,6 +27,11 @@ typedef struct ContPad {
     bool c_down;
     bool c_left;
     bool c_right;
+};
+
+typedef struct ContPad {
+    struct Buttons pressed;
+    struct Buttons held;
     int8_t stick_x;
     int8_t stick_y;
     int8_t cstick_x;

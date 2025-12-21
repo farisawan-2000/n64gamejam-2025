@@ -9,28 +9,30 @@ const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
 
 fn VectorApproach(dest: *[3]f32, src: [3]f32, multiplier: f32) void {
-    for (0 .. 2) |i| {
-        dest[i] = dest[i] + (src[i] - dest[i]) * multiplier;
+    for (dest, src) |*a, b| {
+        a.* = a.* + (b - a.*) * multiplier;
     }
 }
+
+// TODO: use rotation to generate lookat
 
 pub const Camera = struct {
     pos: [3]f32,
     posTarget: [3]f32,
-    look: [3]f32,
-    lookTarget: [3]f32,
+    rot: [3]f32,
+    rotTarget: [3]f32,
 
     viewport: Viewport,
 
     pub fn init(
         position: [3]f32,
-        lookat_pos: [3]f32,
     ) Camera {
         return .{
             .pos = position,
             .posTarget = position,
-            .look = lookat_pos,
-            .lookTarget = lookat_pos,
+
+            .rot = .{0, 0, 0},
+            .rotTarget = .{0, 0, 0},
 
             .viewport = Viewport.create(constants.FB_COUNT),
         };
@@ -43,19 +45,18 @@ pub const Camera = struct {
         self.posTarget[2] += @as(f32, @floatFromInt(pad.stick_y)) / 20.0;
 
         VectorApproach(&self.pos, self.posTarget, 0.25);
-        VectorApproach(&self.look, self.lookTarget, 0.25);
 
-        if (pad.a) {
-            self.posTarget[1] += 1.0;
-        }
-        if (pad.b) {
-            self.posTarget[1] -= 1.0;
-        }
+        // if (pad.held.a) {
+        //     self.posTarget[1] += 1.0;
+        // }
+        // if (pad.held.b) {
+        //     self.posTarget[1] -= 1.0;
+        // }
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
-            .{.xyz = self.look},
+            .{.xyz = .{0, 0, 0}},
             .{.xyz = .{0,1,0}}
         );
         self.viewport.attach();

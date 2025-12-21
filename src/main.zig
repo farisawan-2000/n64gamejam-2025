@@ -33,7 +33,6 @@ fn zig_main() !void {
 
     var cam = Camera.init(
         .{0, 10.0, 40.0},
-        .{0, 0.0, 0.0}
     );
 
     const ambientLightColor:     [4]u8 = .{80, 80, 100, 0xFF};
@@ -85,3 +84,4 @@ pub export fn main() void {
         log.log("Error!\n");
     };
 }
+
