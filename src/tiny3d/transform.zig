@@ -1,6 +1,4 @@
 const t3d = @import("t3d.zig");
-const log = @import("../logging.zig");
-
 
 pub const Transform = struct {
     scale:       [3]f32,

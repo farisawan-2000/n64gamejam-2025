@@ -2,16 +2,6 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 const constants = @import("constants.zig");
-
-const c = @cImport({
-    @cInclude("stdio.h");
-    @cInclude("stdlib.h");
-    @cInclude("malloc.h");
-    @cInclude("string.h");
-    @cInclude("stdint.h");
-    @cInclude("contpad.h");
-});
-
 const tiny3d = @import("tiny3d/t3d.zig");
 
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
@@ -27,6 +17,7 @@ const game = @import("game.zig");
 const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
+const contpad = @import("contpad.zig");
 const objcode = @import("object_code.zig");
 const Object = game.Object;
 const Camera = game.Camera;
@@ -65,14 +56,10 @@ fn zig_main() !void {
     });
 
     while (true) {
-        const pad = c.PollController(libdragon.c.JOYPAD_PORT_1);
-
-        // make the compiler happy while i port
-        if (pad.a) {
-            log.log("A BUTTON\n");
-        }
+        contpad.update();
 
         theObj.update();
+
 
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
