@@ -23,7 +23,6 @@ const t3d = @cImport({
 const tiny3d = @import("tiny3d/t3d.zig");
 
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
-const Model = @import("tiny3d/model.zig").Model;
 const Screen = @import("tiny3d/screen.zig").Screen;
 const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 const Transform = @import("tiny3d/transform.zig").Transform;
@@ -35,6 +34,8 @@ const rdpq = libdragon.rdpq;
 const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
+const Object = @import("object.zig").Object;
+const objcode = @import("object_code.zig");
 
 fn zig_main() !void {
     libdragon.c.display_init(libdragon.c.RESOLUTION_320x240, libdragon.c.DEPTH_32_BPP, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
@@ -61,25 +62,32 @@ fn zig_main() !void {
         .xyz = .{-1, 1, 1}
     };
 
-    var model = Model.load("rom:/model.t3dm");
+    var theObj = Object.init(
+        objcode.default_init,
+        objcode.gear_update,
+        "rom:/model.t3dm"
+    );
 
     lightDirVec.normalize();
-
-    var rotation: f32 = 0;
 
     const screen = Screen.make(.{
         100, 80, 80, 0xFF
     });
 
     while (true) {
-        rotation -= 0.02;
-        const modelScale = 0.1;
+        const pad = c.PollController(libdragon.c.JOYPAD_PORT_1);
+
+        // make the compiler happy while i port
+        if (pad.a) {
+            log.log("A BUTTON\n");
+            log.logU32(@intFromPtr(&viewport));
+        }
+
+        theObj.update();
+
 
         viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         viewport.look_at(camPos, camTarget, .{.xyz = .{0,1,0}});
-
-        model.scale(modelScale);
-        model.rotate(.{0.0, rotation*0.2, rotation});
 
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
         tiny3d.frame_start();
@@ -92,17 +100,9 @@ fn zig_main() !void {
         tiny3d.light_set_directional(0, directionalLightColor, lightDirVec);
         tiny3d.light_set_count(1);
 
-        model.draw();
+        theObj.draw();
 
         rdpq.detach_show();
-
-        const pad = c.PollController(libdragon.c.JOYPAD_PORT_1);
-
-        // make the compiler happy while i port
-        if (pad.a) {
-            log.log("A BUTTON\n");
-            log.logU32(@intFromPtr(&viewport));
-        }
     }
 }
 

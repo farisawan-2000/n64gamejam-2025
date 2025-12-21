@@ -28,8 +28,16 @@ pub const Model = struct {
         self.transform[self.frameIndex].scale = [_]f32{ newScale } ** 3;
     }
 
+    pub fn scaleXYZ(self: *Model, newScale: [3]f32) void {
+        self.transform[self.frameIndex].scale = newScale;
+    }
+
     pub fn rotate(self: *Model, rotation_xyz: [3]f32) void {
         self.transform[self.frameIndex].rotation = rotation_xyz;
+    }
+
+    pub fn move(self: *Model, move_xyz: [3]f32) void {
+        self.transform[self.frameIndex].translation = move_xyz;
     }
 
     pub fn transformSRT(self: *Model,
