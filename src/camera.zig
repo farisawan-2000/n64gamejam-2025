@@ -14,7 +14,20 @@ fn VectorApproach(dest: *[3]f32, src: [3]f32, multiplier: f32) void {
     }
 }
 
+fn VectorExtend(dest: *[3]f32, src: [3]f32, dist: f32, pitch: f32, yaw: f32) void {
+    dest[0] = src[0] + dist * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(pitch)) * tiny3d.c.sinf(tiny3d.DEG_TO_RAD(yaw));
+    dest[0] = src[0] + dist * tiny3d.c.sinf(tiny3d.DEG_TO_RAD(pitch));
+    dest[0] = src[0] + dist * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(pitch)) * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(yaw));
+}
+
+
 // TODO: use rotation to generate lookat
+
+const RPY = enum(usize) {
+    roll,
+    pitch,
+    yaw,
+};
 
 pub const Camera = struct {
     pos: [3]f32,
@@ -42,21 +55,47 @@ pub const Camera = struct {
         const pad = contpad.getPad(1);
 
         self.posTarget[0] += @as(f32, @floatFromInt(pad.stick_x)) / 20.0;
-        self.posTarget[2] += @as(f32, @floatFromInt(pad.stick_y)) / 20.0;
+        self.posTarget[2] += @as(f32, @floatFromInt(-pad.stick_y)) / 20.0;
+
+
+        if (pad.held.c_left) {
+            self.rotTarget[@intFromEnum(RPY.yaw)] += 1.0;
+        }
+        if (pad.held.c_right) {
+            self.rotTarget[@intFromEnum(RPY.yaw)] -= 1.0;
+        }
+        if (pad.held.c_up) {
+            self.rotTarget[@intFromEnum(RPY.pitch)] += 1.0;
+            if (self.rotTarget[@intFromEnum(RPY.pitch)] > 180.0) {
+                self.rotTarget[@intFromEnum(RPY.pitch)] = 180.0;
+            }
+        }
+        if (pad.held.c_down) {
+            self.rotTarget[@intFromEnum(RPY.pitch)] -= 1.0;
+            if (self.rotTarget[@intFromEnum(RPY.pitch)] < 0) {
+                self.rotTarget[@intFromEnum(RPY.pitch)] = 0;
+            }
+        }
+
 
         VectorApproach(&self.pos, self.posTarget, 0.25);
+        VectorApproach(&self.rot, self.rotTarget, 0.25);
 
-        // if (pad.held.a) {
-        //     self.posTarget[1] += 1.0;
-        // }
-        // if (pad.held.b) {
-        //     self.posTarget[1] -= 1.0;
-        // }
+        log.logVec(self.pos);
+        log.logVec(self.rot);
+
+        var lookat: [3]f32 = undefined;
+        VectorExtend(&lookat,
+            self.pos,
+            1000.0,
+            self.rot[@intFromEnum(RPY.pitch)],
+            self.rot[@intFromEnum(RPY.yaw)]
+        );
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
-            .{.xyz = .{0, 0, 0}},
+            .{.xyz = lookat},
             .{.xyz = .{0,1,0}}
         );
         self.viewport.attach();

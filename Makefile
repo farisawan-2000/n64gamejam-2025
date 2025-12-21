@@ -23,7 +23,9 @@ $(BUILD_DIR)/:
 DUMMY != mkdir -p $(BUILD_DIR)/src
 
 C_SRCS := $(wildcard src/*.c)
-ZIG_SRCS := $(wildcard src/*.zig)
+ZIG_SRCS := src/main.zig
+
+build/src/main.o: $(wildcard src/**/*.zig) $(wildcard src/*.zig)
 
 OBJS := $(C_SRCS:%.c=$(BUILD_DIR)/%.o) $(ZIG_SRCS:%.zig=$(BUILD_DIR)/%.o)
 
