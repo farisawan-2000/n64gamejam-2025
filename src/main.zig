@@ -12,14 +12,6 @@ const c = @cImport({
     @cInclude("contpad.h");
 });
 
-const t3d = @cImport({
-    @cInclude("t3d/t3d.h");
-    @cInclude("t3d/t3dmath.h");
-    @cInclude("t3d/t3dmodel.h");
-    @cInclude("t3d/t3dskeleton.h");
-    @cInclude("t3d/t3danim.h");
-});
-
 const tiny3d = @import("tiny3d/t3d.zig");
 
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
