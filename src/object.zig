@@ -1,6 +1,11 @@
 
 const Model = @import("tiny3d/model.zig").Model;
 
+pub fn link(a: *Object, b: *Object) void {
+    a.next = b;
+    b.prev = a;
+}
+
 pub const Object = struct {
     initFunc: *const fn(o: *Object) void,
     updateFunc: *const fn(o: *Object) void,
@@ -14,6 +19,11 @@ pub const Object = struct {
     // User data:
     data: [8]u32,
     dataF: [8]f32,
+
+
+    // link list
+    next: ?*Object,
+    prev: ?*Object,
 
 
     pub fn init(
@@ -32,6 +42,9 @@ pub const Object = struct {
 
             .data = [_]u32{ 0 } ** 8,
             .dataF = [_]f32{ 0 } ** 8,
+
+            .next = null,
+            .prev = null,
         };
     }
 

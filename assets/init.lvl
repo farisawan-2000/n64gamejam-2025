@@ -1,0 +1,3 @@
+obj rom:/model.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv Gear
+obj repeat pos 100 0 0 rot 0 0 0 scale 1 1 1 bhv Gear
+

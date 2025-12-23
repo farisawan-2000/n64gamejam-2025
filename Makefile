@@ -47,6 +47,11 @@ filesystem/%.sprite: assets/%.png
 	@echo "    [SPRITE] $@"
 	$(N64_MKSPRITE) $(MKSPRITE_FLAGS) -o filesystem "$<"
 
+filesystem/%.lvl: assets/%.lvl
+	@mkdir -p $(dir $@)
+	@echo "    [LEVEL] $@"
+	cp $< $@
+
 filesystem/%.font64: assets/%.ttf
 	@mkdir -p $(dir $@)
 	@echo "    [FONT] $@"

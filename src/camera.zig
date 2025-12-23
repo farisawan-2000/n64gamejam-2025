@@ -65,13 +65,13 @@ pub const Camera = struct {
             self.rotTarget[@intFromEnum(RPY.yaw)] -= 1.0;
         }
         if (pad.held.c_up) {
-            self.rotTarget[@intFromEnum(RPY.pitch)] += 1.0;
+            self.rotTarget[@intFromEnum(RPY.pitch)] += 0.25;
             if (self.rotTarget[@intFromEnum(RPY.pitch)] > 180.0) {
                 self.rotTarget[@intFromEnum(RPY.pitch)] = 180.0;
             }
         }
         if (pad.held.c_down) {
-            self.rotTarget[@intFromEnum(RPY.pitch)] -= 1.0;
+            self.rotTarget[@intFromEnum(RPY.pitch)] -= 0.25;
             if (self.rotTarget[@intFromEnum(RPY.pitch)] < 0) {
                 self.rotTarget[@intFromEnum(RPY.pitch)] = 0;
             }
@@ -92,7 +92,7 @@ pub const Camera = struct {
             self.rot[@intFromEnum(RPY.yaw)]
         );
 
-        self.viewport.set_projection(tiny3d.DEG_TO_RAD(85.0), 10.0, 150.0);
+        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 10.0, 150.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
             .{.xyz = lookat},
