@@ -22,7 +22,13 @@ fn parseLevel(arena: Allocator, path: [:0]u8) ?*[]Object {
         )
     ) |line| {
         defer arena.free(line);
-        // _ = line; // Do something with the line
+
+        // Tokenize the line using spaces as the delimiter
+        const tokenizer = std.mem.tokenizeAny(u8, line, " ");
+
+        for (tokenizer) |token| {
+            _ = token;
+        }
     }
 
     return null;
