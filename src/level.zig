@@ -6,11 +6,30 @@ const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
 
 pub const LevelType = enum(i32) {
     SplashScreen,
-    @"2DScene",
-    @"3DScene",
+    @"2D Scene",
+    @"3D Scene",
 };
 
+const LevelCommand = enum(i32) {
+    None,
+    LevelModel,
+    CameraInit,
+    CollisionMap,
+    Object,
+};
+
+const curLevelCommand = .None;
+
 const MAX_OBJECTS = 256;
+
+fn token_to_enum(token: []const u8) LevelCommand {
+    if (std.mem.eql(u8, token, "level")) {
+        return .LevelModel;
+    }
+    else if (std.mem.eql(u8, token, "camera")) {
+        return .CameraInit;
+    }
+}
 
 fn parseLevel(arena: Allocator, path: [:0]u8) ?*[]Object {
     const lvFile = std.fs.cwd().openFile(path);
@@ -21,13 +40,30 @@ fn parseLevel(arena: Allocator, path: [:0]u8) ?*[]Object {
             arena, '\n', std.math.maxInt(usize)
         )
     ) |line| {
-        defer arena.free(line);
-
         // Tokenize the line using spaces as the delimiter
         const tokenizer = std.mem.tokenizeAny(u8, line, " ");
+        var tokens = std.ArrayList([]const u8).init(arena);
 
-        for (tokenizer) |token| {
-            _ = token;
+        // defer in reverse order
+        defer tokens.deinit();
+        defer arena.free(line);
+
+        for (tokenizer) |tok| {
+            tokens.append(tok);
+        }
+
+        tokenLoop: for (0.., tokens) |i, token| {
+            _ = i;
+            const token_as_enum = token_to_enum(token);
+            switch (token_as_enum) {
+                .LevelModel => {
+                    
+                },
+
+                _ => {
+                    continue :tokenLoop;
+                }
+            }
         }
     }
 

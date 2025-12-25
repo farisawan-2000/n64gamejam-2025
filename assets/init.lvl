@@ -1,3 +1,5 @@
-obj rom:/model.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv Gear
-obj repeat pos 100 0 0 rot 0 0 0 scale 1 1 1 bhv Gear
+level rom:/level.t3dm
+camera pos 0 0 0 rot 0 0 0 mode freecam
+object rom:/model.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv gear
+object repeat pos 100 0 0 rot 0 0 0 scale 1 1 1 bhv gear
 
