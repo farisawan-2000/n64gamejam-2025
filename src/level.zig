@@ -31,48 +31,47 @@ fn token_to_enum(token: []const u8) LevelCommand {
     }
 }
 
-fn parseLevel(arena: Allocator, path: [:0]u8) ?*[]Object {
-    const lvFile = std.fs.cwd().openFile(path);
-    defer lvFile.close();
+pub const Level = struct {
+    arena: LevelAllocator,
+    objects: ?*[]Object,
 
-    while(
-        lvFile.reader().readUntilDelimiterOrEofAlloc(
-            arena, '\n', std.math.maxInt(usize)
-        )
-    ) |line| {
-        // Tokenize the line using spaces as the delimiter
-        const tokenizer = std.mem.tokenizeAny(u8, line, " ");
-        var tokens = std.ArrayList([]const u8).init(arena);
+    fn parseLevel(self: *Level, path: [:0]u8) void {
+        const arena: Allocator = self.arena.arena;
+        const lvFile = std.fs.cwd().openFile(path);
+        defer lvFile.close();
 
-        // defer in reverse order
-        defer tokens.deinit();
-        defer arena.free(line);
+        while(
+            lvFile.reader().readUntilDelimiterOrEofAlloc(
+                arena, '\n', std.math.maxInt(usize)
+            )
+        ) |line| {
+            // Tokenize the line using spaces as the delimiter
+            const tokenizer = std.mem.tokenizeAny(u8, line, " ");
+            var tokens = std.ArrayList([]const u8).init(arena);
 
-        for (tokenizer) |tok| {
-            tokens.append(tok);
-        }
+            // defer in reverse order
+            defer tokens.deinit();
+            defer arena.free(line);
 
-        tokenLoop: for (0.., tokens) |i, token| {
-            _ = i;
-            const token_as_enum = token_to_enum(token);
-            switch (token_as_enum) {
-                .LevelModel => {
-                    
-                },
+            for (tokenizer) |tok| {
+                tokens.append(tok);
+            }
 
-                _ => {
-                    continue :tokenLoop;
+            tokenLoop: for (0.., tokens) |i, token| {
+                _ = i;
+                const token_as_enum = token_to_enum(token);
+                switch (token_as_enum) {
+                    .LevelModel => {
+                        
+                    },
+
+                    _ => {
+                        continue :tokenLoop;
+                    }
                 }
             }
         }
     }
-
-    return null;
-}
-
-pub const Level = struct {
-    arena: LevelAllocator,
-    objects: ?*[]Object,
 
     pub fn init(path: [:0]u8) Level {
         const lv = .{
@@ -82,7 +81,7 @@ pub const Level = struct {
 
         lv.arena.initAllocator();
 
-        lv.objects = parseLevel(path);
+        lv.parseLevel(path);
 
         return lv;
     }
