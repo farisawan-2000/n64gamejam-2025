@@ -40,10 +40,12 @@ NO_WARNINGS := -Wno-unused-const-variable -Wno-incompatible-pointer-types -Wno-u
 assets_png = $(wildcard assets/*.png)
 assets_gltf = $(wildcard assets/*.glb)
 assets_ttf = $(wildcard assets/*.ttf)
+assets_lvl = $(wildcard assets/*.lvl)
 
 ASSET_CONV = $(addprefix filesystem/,$(notdir $(assets_png:%.png=%.sprite))) \
 			  $(addprefix filesystem/,$(notdir $(assets_ttf:%.ttf=%.font64))) \
-			  $(addprefix filesystem/,$(notdir $(assets_gltf:%.glb=%.t3dm)))
+			  $(addprefix filesystem/,$(notdir $(assets_gltf:%.glb=%.t3dm))) \
+			  $(addprefix filesystem/,$(notdir $(assets_lvl)))
 
 filesystem/%.sprite: assets/%.png
 	@mkdir -p $(dir $@)

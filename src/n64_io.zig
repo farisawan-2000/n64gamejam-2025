@@ -1,4 +1,6 @@
 const libdragon = @import("libdragon/libdragon.zig");
+const log = @import("logging.zig");
+
 
 pub fn tokenize() [][]u8 {
 
