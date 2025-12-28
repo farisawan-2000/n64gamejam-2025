@@ -5,7 +5,7 @@ pub fn tokenize() [][]u8 {
 }
 
 pub const File = struct {
-    fptr: *libdragon.c.FILE,
+    fptr: ?*libdragon.c.FILE,
 
     pub fn open(path: [:0]const u8) File {
         return .{

@@ -15,6 +15,9 @@ include $(T3D_INST)/t3d.mk
 
 ROM := game.z64
 
+
+CFLAGS += -g -ggdb3
+
 all: $(ROM)
 
 $(BUILD_DIR)/:

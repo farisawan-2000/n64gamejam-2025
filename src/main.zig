@@ -49,7 +49,7 @@ fn zig_main() !void {
     //     "rom:/model.t3dm"
     // );
 
-    var initLevel = Level.init(@constCast("rom:/init.lvl"));
+    var initLevel = try Level.init(@constCast("rom:/init.lvl"));
 
     lightDirVec.normalize();
 

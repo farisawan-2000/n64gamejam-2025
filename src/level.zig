@@ -8,6 +8,8 @@ const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
 const io = @import("n64_io.zig");
 const File = io.File;
 
+const log = @import("logging.zig");
+
 pub const LevelType = enum(i32) {
     SplashScreen,
     @"2D Scene",
@@ -42,7 +44,7 @@ pub const Level = struct {
     mesh: Model,
     objects: []Object,
 
-    fn parseLevel(self: *Level, path: [:0]u8) void {
+    fn parseLevel(self: *Level, path: [:0]u8) !void {
         var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
 
         const lvFile = File.open(path);
@@ -54,11 +56,12 @@ pub const Level = struct {
         while (lvFile.readline()) |line| {
             // Tokenize the line using spaces as the delimiter
             var tokenizer = std.mem.tokenizeAny(u8, line, " ");
-            var tokens = std.ArrayList([:0]const u8).initCapacity(a_alloc, 32) catch unreachable;
+            var tokens = try std.ArrayList([:0]const u8).initCapacity(a_alloc, 32);
 
             while (tokenizer.next()) |tok| {
-                const zerostr = a_alloc.dupeZ(u8, tok) catch unreachable;
-                tokens.append(a_alloc, zerostr) catch unreachable;
+                const zerostr = try a_alloc.dupeZ(u8, tok);
+                log.log(zerostr);
+                try tokens.append(a_alloc, zerostr);
             }
 
             tokenLoop: for (0.., tokens.items) |i, token| {
@@ -76,7 +79,7 @@ pub const Level = struct {
         }
     }
 
-    pub fn init(path: [:0]u8) Level {
+    pub fn init(path: [:0]u8) !Level {
         var lv: Level = .{
             // .arena = LevelAllocator.init(),
             .mesh = undefined,
@@ -85,7 +88,7 @@ pub const Level = struct {
 
         // lv.arena.initAllocator();
 
-        lv.parseLevel(path);
+        try lv.parseLevel(path);
 
         return lv;
     }
