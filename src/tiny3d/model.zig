@@ -8,7 +8,7 @@ const t3d = @import("t3d.zig");
 const Transform = @import("transform.zig").Transform;
 
 pub const Model = struct {
-    t3dmodel: *t3d.c.T3DModel,
+    t3dmodel: ?*t3d.c.T3DModel,
     data: *libdragon.c.rspq_block_t,
     firstDraw: bool,
     transform: [constants.FB_COUNT]Transform,
