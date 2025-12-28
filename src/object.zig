@@ -20,12 +20,6 @@ pub const Object = struct {
     data: [8]u32,
     dataF: [8]f32,
 
-
-    // link list
-    next: ?*Object,
-    prev: ?*Object,
-
-
     pub fn init(
         initFPtr: *const fn(o: *Object) void,
         updateFPtr: *const fn(o: *Object) void,
@@ -42,9 +36,6 @@ pub const Object = struct {
 
             .data = [_]u32{ 0 } ** 8,
             .dataF = [_]f32{ 0 } ** 8,
-
-            .next = null,
-            .prev = null,
         };
     }
 

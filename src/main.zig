@@ -21,6 +21,7 @@ const contpad = @import("contpad.zig");
 const objcode = @import("object_code.zig");
 const Object = game.Object;
 const Camera = game.Camera;
+const Level = game.Level;
 
 fn zig_main() !void {
     libdragon.c.display_init(libdragon.c.RESOLUTION_320x240, libdragon.c.DEPTH_32_BPP, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
@@ -42,11 +43,13 @@ fn zig_main() !void {
         .xyz = .{-1, 1, 1}
     };
 
-    var theObj = Object.init(
-        objcode.default_init,
-        objcode.gear_update,
-        "rom:/model.t3dm"
-    );
+    // var theObj = Object.init(
+    //     objcode.default_init,
+    //     objcode.gear_update,
+    //     "rom:/model.t3dm"
+    // );
+
+    var initLevel = Level.init(@constCast("rom:/init.lvl"));
 
     lightDirVec.normalize();
 
@@ -57,7 +60,7 @@ fn zig_main() !void {
     while (true) {
         contpad.update();
 
-        theObj.update();
+        initLevel.tick();
 
 
         rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
@@ -71,7 +74,7 @@ fn zig_main() !void {
         tiny3d.light_set_directional(0, directionalLightColor, lightDirVec);
         tiny3d.light_set_count(1);
 
-        theObj.draw();
+        initLevel.draw();
 
         rdpq.detach_show();
     }

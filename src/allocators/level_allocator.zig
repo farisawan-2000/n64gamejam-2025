@@ -11,7 +11,7 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const Alignment = std.mem.Alignment;
 
-pub const LevelAllocator: Allocator = struct {
+pub const LevelAllocator = struct {
     arena: ?[*]u8,
     top: u32,
 
@@ -87,7 +87,7 @@ pub const LevelAllocator: Allocator = struct {
     }
 
     pub fn initAllocator(self: *LevelAllocator) void {
-        self.arena = .{
+        self.backingAllocator = .{
             .ptr = self,
             .vtable = .{
                 .alloc = alloc,

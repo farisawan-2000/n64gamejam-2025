@@ -2,7 +2,11 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 const Object = @import("object.zig").Object;
+const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
+
+const io = @import("n64_io.zig");
+const File = io.File;
 
 pub const LevelType = enum(i32) {
     SplashScreen,
@@ -22,50 +26,49 @@ const curLevelCommand = .None;
 
 const MAX_OBJECTS = 256;
 
-fn token_to_enum(token: []const u8) LevelCommand {
+fn token_to_enum(token: [:0]const u8) LevelCommand {
     if (std.mem.eql(u8, token, "level")) {
         return .LevelModel;
     }
     else if (std.mem.eql(u8, token, "camera")) {
         return .CameraInit;
     }
+    else {
+        return .None;
+    }
 }
 
 pub const Level = struct {
-    arena: LevelAllocator,
-    objects: ?*[]Object,
+    mesh: Model,
+    objects: []Object,
 
     fn parseLevel(self: *Level, path: [:0]u8) void {
-        const arena: Allocator = self.arena.arena;
-        const lvFile = std.fs.cwd().openFile(path);
+        var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
+
+        const lvFile = File.open(path);
         defer lvFile.close();
 
-        while(
-            lvFile.reader().readUntilDelimiterOrEofAlloc(
-                arena, '\n', std.math.maxInt(usize)
-            )
-        ) |line| {
+        const a_alloc = arena.allocator();
+        defer _ = arena.reset(.free_all);
+
+        while (lvFile.readline()) |line| {
             // Tokenize the line using spaces as the delimiter
-            const tokenizer = std.mem.tokenizeAny(u8, line, " ");
-            var tokens = std.ArrayList([]const u8).init(arena);
+            var tokenizer = std.mem.tokenizeAny(u8, line, " ");
+            var tokens = std.ArrayList([:0]const u8).initCapacity(a_alloc, 32) catch unreachable;
 
-            // defer in reverse order
-            defer tokens.deinit();
-            defer arena.free(line);
-
-            for (tokenizer) |tok| {
-                tokens.append(tok);
+            while (tokenizer.next()) |tok| {
+                const zerostr = a_alloc.dupeZ(u8, tok) catch unreachable;
+                tokens.append(a_alloc, zerostr) catch unreachable;
             }
 
-            tokenLoop: for (0.., tokens) |i, token| {
-                _ = i;
+            tokenLoop: for (0.., tokens.items) |i, token| {
                 const token_as_enum = token_to_enum(token);
                 switch (token_as_enum) {
                     .LevelModel => {
-                        
+                        self.mesh = Model.load(tokens.items[i + 1]);
                     },
 
-                    _ => {
+                    else => {
                         continue :tokenLoop;
                     }
                 }
@@ -74,12 +77,13 @@ pub const Level = struct {
     }
 
     pub fn init(path: [:0]u8) Level {
-        const lv = .{
-            .arena = LevelAllocator.init(),
-            .objects = null,
+        var lv: Level = .{
+            // .arena = LevelAllocator.init(),
+            .mesh = undefined,
+            .objects = &[_]Object{},
         };
 
-        lv.arena.initAllocator();
+        // lv.arena.initAllocator();
 
         lv.parseLevel(path);
 
@@ -87,11 +91,16 @@ pub const Level = struct {
     }
 
     pub fn tick(self: *Level) void {
-        const objStart = self.objects[0];
-        var objPtr = objStart.next;
+        for (self.objects) |*obj| {
+            obj.update();
+        }
+    }
 
-        while (objPtr != objStart) : (objPtr = objPtr.next) {
-            objPtr.update();
+    pub fn draw(self: *Level) void {
+        self.mesh.draw();
+
+        for (self.objects) |*obj| {
+            obj.draw();
         }
     }
 
