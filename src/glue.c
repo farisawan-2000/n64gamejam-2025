@@ -8,3 +8,8 @@
 #include <stdint.h>
 #include <libdragon.h>
 
+
+void stop_game(const char *msg) {
+    assertf(0, msg);
+}
+

@@ -6,6 +6,22 @@ pub fn tokenize() [][]u8 {
 
 }
 
+pub const Line = struct {
+    buf: [1024]u8,
+    line_end: u32,
+
+    pub fn init() Line {
+        return .{
+            .buf = [_]u8 { 0 } ** 1024,
+            .line_end = 0,
+        };
+    }
+
+    pub fn to_buf(self: *const Line) []const u8 {
+        return &self.buf;
+    }
+};
+
 pub const File = struct {
     fptr: ?*libdragon.c.FILE,
     size: u32,
@@ -27,8 +43,11 @@ pub const File = struct {
         _ = libdragon.c.fclose(self.fptr);
     }
 
-    pub fn readline(self: *const File) ?[]u8 {
+    pub fn readline(self: *const File) ?Line {
         _ = self;
-        return null;
+        var ret: ?Line = null;
+
+        ret = null;
+        return ret;
     }
 };

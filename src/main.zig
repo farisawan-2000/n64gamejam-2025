@@ -23,6 +23,18 @@ const Object = game.Object;
 const Camera = game.Camera;
 const Level = game.Level;
 
+pub extern fn stop_game(arg_msg: [*c]const u8) noreturn;
+
+pub fn panic(msg: []const u8, stack_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
+    _ = stack_trace;
+    _ = ret_addr;
+    stop_game(msg.ptr);
+
+    while (true) {
+
+    }
+}
+
 fn zig_main() !void {
     libdragon.c.display_init(libdragon.c.RESOLUTION_320x240, libdragon.c.DEPTH_32_BPP, 2, libdragon.c.GAMMA_NONE, libdragon.c.FILTERS_DISABLED);
     assets.init_compression(2);

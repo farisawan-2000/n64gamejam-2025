@@ -55,7 +55,7 @@ pub const Level = struct {
 
         while (lvFile.readline()) |line| {
             // Tokenize the line using spaces as the delimiter
-            var tokenizer = std.mem.tokenizeAny(u8, line, " ");
+            var tokenizer = std.mem.tokenizeAny(u8, line.to_buf(), " ");
             var tokens = try std.ArrayList([:0]const u8).initCapacity(a_alloc, 32);
 
             while (tokenizer.next()) |tok| {
