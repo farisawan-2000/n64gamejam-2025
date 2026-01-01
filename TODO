@@ -1,5 +1,0 @@
-For tomorrow:
-
-- COMPILE LIBDRAGON LOCALLY WITH A o32 ABI (SUBMODULE and TAG IT)
-- set_o32_abi_bit SET o32,mips2
-  - OR MAKE ZIG DO MIPS2
