@@ -43,6 +43,7 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
 pub const Level = struct {
     mesh: Model,
     objects: []Object,
+    initialized: bool,
 
     fn parseLevel(self: *Level, path: [:0]u8) !void {
         var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
@@ -60,7 +61,6 @@ pub const Level = struct {
 
             while (tokenizer.next()) |tok| {
                 const zerostr = try a_alloc.dupeZ(u8, tok);
-                log.log(zerostr);
                 try tokens.append(a_alloc, zerostr);
             }
 
@@ -84,6 +84,7 @@ pub const Level = struct {
             // .arena = LevelAllocator.init(),
             .mesh = undefined,
             .objects = &[_]Object{},
+            .initialized = false,
         };
 
         // lv.arena.initAllocator();
@@ -100,10 +101,12 @@ pub const Level = struct {
     }
 
     pub fn draw(self: *Level) void {
-        self.mesh.draw();
+        if (self.initialized) {
+            self.mesh.draw();
 
-        for (self.objects) |*obj| {
-            obj.draw();
+            for (self.objects) |*obj| {
+                obj.draw();
+            }
         }
     }
 

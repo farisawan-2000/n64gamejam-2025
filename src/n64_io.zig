@@ -10,15 +10,30 @@ pub const Line = struct {
     buf: [1024]u8,
     line_end: u32,
 
-    pub fn init() Line {
-        return .{
+    pub fn init(f: *const File) Line {
+        var ret = Line {
             .buf = [_]u8 { 0 } ** 1024,
             .line_end = 0,
         };
+
+        const bytes_read = libdragon.c.fread(&ret.buf, 1, 1024, f.fptr);
+        for (0..bytes_read) |i| {
+            if (ret.buf[i] == 0xA) {
+                // newline, rewind the file a bit
+                ret.line_end = i;
+                for (i..1024) |rest| {
+                    ret.buf[rest] = 0;
+                }
+                const remaining_bytes: i32 = @intCast(bytes_read - i);
+                _ = libdragon.c.fseek(f.fptr, -remaining_bytes, libdragon.c.SEEK_CUR);
+            }
+        }
+
+        return ret;
     }
 
     pub fn to_buf(self: *const Line) []const u8 {
-        return &self.buf;
+        return self.buf[0..self.line_end];
     }
 };
 
@@ -44,10 +59,12 @@ pub const File = struct {
     }
 
     pub fn readline(self: *const File) ?Line {
-        _ = self;
-        var ret: ?Line = null;
+        const ret = Line.init(self);
 
-        ret = null;
+        if (ret.line_end == 0) {
+            return null;
+        }
+
         return ret;
     }
 };

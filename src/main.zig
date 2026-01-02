@@ -23,12 +23,13 @@ const Object = game.Object;
 const Camera = game.Camera;
 const Level = game.Level;
 
-pub extern fn stop_game(arg_msg: [*c]const u8) noreturn;
+pub extern fn stop_game(arg_msg: [*c]const u8, arg_len: usize) noreturn;
 
+// Override on the panic function, which eventually just hooks into libdragon assert
 pub fn panic(msg: []const u8, stack_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
     _ = stack_trace;
     _ = ret_addr;
-    stop_game(msg.ptr);
+    stop_game(msg.ptr, msg.len);
 
     while (true) {
 

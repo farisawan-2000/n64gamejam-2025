@@ -9,7 +9,8 @@
 #include <libdragon.h>
 
 
-void stop_game(const char *msg) {
+void stop_game(char *msg, size_t len) {
+    msg[len] = 0;
     assertf(0, msg);
 }
 
