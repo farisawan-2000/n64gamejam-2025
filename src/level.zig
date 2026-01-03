@@ -66,7 +66,7 @@ pub const Level = struct {
         const a_alloc = arena.allocator();
 
         while (lvFile.readline()) |line| {
-            log.log2(line.to_buf());
+            log.logFmt("Line: {s}\n", .{line.to_buf()});
             // Tokenize the line using spaces as the delimiter
             var tokenizer = std.mem.tokenizeAny(u8, line.to_buf(), " ");
             var tokens = try std.ArrayList([:0]const u8).initCapacity(a_alloc, 32);

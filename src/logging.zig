@@ -2,6 +2,14 @@ const std = @import("std");
 
 pub extern "c" fn debugf(format: [*:0]const u8, ...) c_int;
 
+pub fn logFmt(comptime fmt: []const u8, args: anytype) void {
+    var buf: [1000]u8 = undefined;
+
+    const msgbuf = std.fmt.bufPrintZ(&buf, fmt, args) catch unreachable;
+
+    _ = debugf(msgbuf);
+}
+
 pub fn log(msg: [:0]const u8) void {
     _ = debugf(msg);
 }
