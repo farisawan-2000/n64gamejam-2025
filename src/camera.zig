@@ -1,4 +1,3 @@
-
 const constants = @import("constants.zig");
 const log = @import("logging.zig");
 
@@ -20,7 +19,6 @@ fn VectorExtend(dest: *[3]f32, src: [3]f32, dist: f32, pitch: f32, yaw: f32) voi
     dest[0] = src[0] + dist * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(pitch)) * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(yaw));
 }
 
-
 // TODO: use rotation to generate lookat
 
 const RPY = enum(usize) {
@@ -39,13 +37,16 @@ pub const Camera = struct {
 
     pub fn init(
         position: [3]f32,
+        rotation: [3]f32,
     ) Camera {
+        log.logVec(position);
+        log.logVec(rotation);
         return .{
             .pos = position,
             .posTarget = position,
 
-            .rot = .{0, 0, 0},
-            .rotTarget = .{0, 0, 0},
+            .rot = rotation,
+            .rotTarget = rotation,
 
             .viewport = Viewport.create(constants.FB_COUNT),
         };
@@ -77,12 +78,9 @@ pub const Camera = struct {
             }
         }
 
-
         VectorApproach(&self.pos, self.posTarget, 0.25);
         VectorApproach(&self.rot, self.rotTarget, 0.25);
 
-        log.logVec(self.pos);
-        log.logVec(self.rot);
 
         var lookat: [3]f32 = undefined;
         VectorExtend(&lookat,
@@ -93,6 +91,9 @@ pub const Camera = struct {
         );
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 10.0, 150.0);
+        // log.logVec(self.pos);
+        // log.logVec(self.rot);
+        // log.logVec(lookat);
         self.viewport.look_at(
             .{.xyz = self.pos},
             .{.xyz = lookat},

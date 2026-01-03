@@ -5,7 +5,6 @@ const constants = @import("constants.zig");
 const tiny3d = @import("tiny3d/t3d.zig");
 
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
-const Screen = @import("tiny3d/screen.zig").Screen;
 const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 const Transform = @import("tiny3d/transform.zig").Transform;
 
@@ -45,16 +44,9 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    var cam = Camera.init(
-        .{0, 10.0, 40.0},
-    );
-
-    const ambientLightColor:     [4]u8 = .{80, 80, 100, 0xFF};
-    const directionalLightColor: [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
-
-    const lightDirVec: Vec3 = .{
-        .xyz = .{-1, 1, 1}
-    };
+    // var cam = Camera.init(
+    //     .{0, 10.0, 40.0},
+    // );
 
     // var theObj = Object.init(
     //     objcode.default_init,
@@ -62,34 +54,13 @@ fn zig_main() !void {
     //     "rom:/model.t3dm"
     // );
 
-    var initLevel = try Level.init(@constCast("rom:/init.lvl"));
-
-    lightDirVec.normalize();
-
-    const screen = Screen.make(.{
-        100, 80, 80, 0xFF
-    });
+    var initLevel = Level.init(@constCast("rom:/init.lvl")) catch unreachable;
 
     while (true) {
         contpad.update();
 
         initLevel.tick();
-
-
-        rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
-        tiny3d.frame_start();
-        cam.update();
-
-        screen.clear();
-        screen.clear_depth();
-
-        tiny3d.light_set_ambient(ambientLightColor);
-        tiny3d.light_set_directional(0, directionalLightColor, lightDirVec);
-        tiny3d.light_set_count(1);
-
         initLevel.draw();
-
-        rdpq.detach_show();
     }
 }
 

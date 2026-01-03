@@ -6,6 +6,14 @@ pub fn log(msg: [:0]const u8) void {
     _ = debugf(msg);
 }
 
+pub fn log2(msg: []const u8) void {
+    var buf: [1000]u8 = undefined;
+
+    const msgbuf = std.fmt.bufPrintZ(&buf, "{s}\n", .{msg}) catch unreachable;
+
+    _ = debugf(msgbuf);
+}
+
 pub fn logVec(val: [3]f32) void {
     var buf: [1000]u8 = undefined;
 

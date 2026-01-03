@@ -19,11 +19,15 @@ pub const Line = struct {
         const bytes_read = libdragon.c.fread(&ret.buf, 1, 1024, f.fptr);
         for (0..bytes_read) |i| {
             if (ret.buf[i] == 0xA) {
-                // newline, rewind the file a bit
+                // newline
                 ret.line_end = i;
+
+                // Have to zero out the whole rest of the buf or it gets mad
                 for (i..1024) |rest| {
                     ret.buf[rest] = 0;
                 }
+
+                // rewind the file a bit so we can read the next line
                 const remaining_bytes: i32 = @intCast(bytes_read - i);
                 _ = libdragon.c.fseek(f.fptr, -remaining_bytes, libdragon.c.SEEK_CUR);
             }
