@@ -6,6 +6,8 @@ const Object = @import("object.zig").Object;
 const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
 
+const objcode = @import("object_code.zig");
+
 const tiny3d = @import("tiny3d/t3d.zig");
 const Screen = @import("tiny3d/screen.zig").Screen;
 const Vec3 = @import("tiny3d/vec3.zig").Vec3;
@@ -18,6 +20,8 @@ const rspq = libdragon.rspq;
 const rdpq = libdragon.rdpq;
 
 const log = @import("logging.zig");
+
+const MAX_OBJS = 64;
 
 pub const LevelType = enum(i32) {
     SplashScreen,
@@ -44,6 +48,9 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
     else if (std.mem.eql(u8, token, "camera")) {
         return .CameraInit;
     }
+    else if (std.mem.eql(u8, token, "object")) {
+        return .Object;
+    }
     else {
         return .None;
     }
@@ -51,7 +58,7 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
 
 pub const Level = struct {
     mesh: Model,
-    objects: []Object,
+    objects: std.ArrayList(Object),
     camera: Camera,
     screen: Screen,
     initialized: bool,
@@ -80,19 +87,10 @@ pub const Level = struct {
                 const token_as_enum = token_to_enum(token);
                 switch (token_as_enum) {
                     .LevelModel => {
-                        log.log("LEVEL INIT\n");
                         self.mesh = Model.load(tokens.items[i + 1]);
                     },
 
                     .CameraInit => {
-                        log.log("CAM INIT\n");
-                        log.log(tokens.items[i + 2]);
-                        log.log("\n");
-                        log.log(tokens.items[i + 3]);
-                        log.log("\n");
-                        log.log(tokens.items[i + 4]);
-                        log.log("\n");
-
                         self.camera.pos = .{
                             try std.fmt.parseFloat(f32, tokens.items[i + 2]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 3]),
@@ -103,6 +101,13 @@ pub const Level = struct {
                             try std.fmt.parseFloat(f32, tokens.items[i + 7]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 8]),
                         };
+                    },
+
+                    .Object => {
+                        try self.objects.append(std.heap.c_allocator, Object.init(
+                            objcode.default_init, objcode.default_update,
+                            tokens.items[i + 1]
+                        ));
                     },
 
                     else => {
@@ -117,7 +122,7 @@ pub const Level = struct {
         var lv: Level = .{
             // .arena = LevelAllocator.init(),
             .mesh = undefined,
-            .objects = &[_]Object{},
+            .objects = try std.ArrayList(Object).initCapacity(std.heap.c_allocator, 32),
             .camera = Camera.init(.{0, 0, 0}, .{0, 0, 0}),
             .screen = Screen.make(.{
                 100, 80, 80, 0xFF
@@ -135,7 +140,7 @@ pub const Level = struct {
     }
 
     pub fn tick(self: *Level) void {
-        for (self.objects) |*obj| {
+        for (self.objects.items) |*obj| {
             obj.update();
         }
     }
@@ -150,7 +155,13 @@ pub const Level = struct {
 
         lightDirVec.normalize();
 
-        rdpq.attach(libdragon.c.display_get(), libdragon.c.display_get_zbuf());
+        const disp = libdragon.c.display_get();
+        const zbuf = libdragon.c.display_get_zbuf();
+
+        log.logU32(@intFromPtr(disp));
+        log.logU32(@intFromPtr(zbuf));
+
+        rdpq.attach(disp, zbuf);
 
         if (self.initialized) {
             tiny3d.frame_start();
@@ -165,11 +176,12 @@ pub const Level = struct {
 
             self.mesh.draw();
 
-            for (self.objects) |*obj| {
+            for (self.objects.items) |*obj| {
                 obj.draw();
             }
+
+            rdpq.detach_show();
         }
-        rdpq.detach_show();
     }
 
     pub fn destroy() void {

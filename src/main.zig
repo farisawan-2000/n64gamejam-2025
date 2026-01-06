@@ -17,7 +17,6 @@ const log = @import("logging.zig");
 const assets = @import("assets.zig");
 const math = @import("math.zig");
 const contpad = @import("contpad.zig");
-const objcode = @import("object_code.zig");
 const Object = game.Object;
 const Camera = game.Camera;
 const Level = game.Level;
