@@ -1,5 +1,43 @@
+const std = @import("std");
 
 const Model = @import("tiny3d/model.zig").Model;
+const objcode = @import("object_code.zig");
+
+pub const ObjBehavior = enum {
+    @"Static Object",
+    @"Rotating Gear",
+};
+
+pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
+    if (std.mem.eql(u8, token, "static")) {
+        return .@"Static Object";
+    }
+    else if (std.mem.eql(u8, token, "gear")) {
+        return .@"Rotating Gear";
+    }
+    else {
+        return .@"Static Object";
+    }
+}
+
+pub fn set_obj_code(o: *Object) void {
+    switch (o.behavior) {
+        .@"Static Object" => {
+            o.initFunc = objcode.default_init;
+            o.updateFunc = objcode.default_update;
+        },
+
+        .@"Rotating Gear" => {
+            o.initFunc = objcode.gear_init;
+            o.updateFunc = objcode.gear_update;
+        },
+
+        else => {
+            o.initFunc = objcode.default_init;
+            o.updateFunc = objcode.default_update;
+        },
+    }
+}
 
 pub fn link(a: *Object, b: *Object) void {
     a.next = b;
@@ -10,6 +48,7 @@ pub const Object = struct {
     initFunc: *const fn(o: *Object) void,
     updateFunc: *const fn(o: *Object) void,
     model: Model,
+    behavior: ObjBehavior,
 
     // fields:
     pos: [3]f32,
@@ -23,12 +62,14 @@ pub const Object = struct {
     pub fn init(
         initFPtr: *const fn(o: *Object) void,
         updateFPtr: *const fn(o: *Object) void,
-        modelPath: [:0]const u8
+        modelPath: [:0]const u8,
+        bhvString: [:0]const u8,
     ) Object {
         return .{
             .initFunc = initFPtr,
             .updateFunc = updateFPtr,
             .model = Model.load(modelPath),
+            .behavior = token_to_behavior(bhvString),
 
             .pos = .{0, 0, 0},
             .rot = .{0, 0, 0},

@@ -106,7 +106,7 @@ pub const Level = struct {
                     .Object => {
                         try self.objects.append(std.heap.c_allocator, Object.init(
                             objcode.default_init, objcode.default_update,
-                            tokens.items[i + 1]
+                            tokens.items[i + 1], tokens.items[i + 15],
                         ));
                     },
 
