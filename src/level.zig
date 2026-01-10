@@ -101,6 +101,9 @@ pub const Level = struct {
                             try std.fmt.parseFloat(f32, tokens.items[i + 7]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 8]),
                         };
+
+                        self.camera.pos = self.camera.posTarget;
+                        self.camera.rot = self.camera.rotTarget;
                     },
 
                     .Object => {
