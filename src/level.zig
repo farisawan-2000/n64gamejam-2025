@@ -24,7 +24,7 @@ const log = @import("logging.zig");
 const MAX_OBJS = 64;
 
 pub const LevelType = enum(i32) {
-    SplashScreen,
+    @"Splash Screen",
     @"2D Scene",
     @"3D Scene",
 };
@@ -91,12 +91,12 @@ pub const Level = struct {
                     },
 
                     .CameraInit => {
-                        self.camera.pos = .{
+                        self.camera.posTarget = .{
                             try std.fmt.parseFloat(f32, tokens.items[i + 2]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 3]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 4]),
                         };
-                        self.camera.rot = .{
+                        self.camera.rotTarget = .{
                             try std.fmt.parseFloat(f32, tokens.items[i + 6]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 7]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 8]),
@@ -158,8 +158,8 @@ pub const Level = struct {
         const disp = libdragon.c.display_get();
         const zbuf = libdragon.c.display_get_zbuf();
 
-        log.logU32(@intFromPtr(disp));
-        log.logU32(@intFromPtr(zbuf));
+        // log.logU32(@intFromPtr(disp));
+        // log.logU32(@intFromPtr(zbuf));
 
         rdpq.attach(disp, zbuf);
 
