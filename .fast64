@@ -1,0 +1,14 @@
+{
+  "version": 1.0,
+  "autoLoad": true,
+  "autoPickTextureFormat": true,
+  "preferRGBAOverCI": false,
+  "microcode": "T3D",
+  "saveTextures": false,
+  "rdpDefaults": {
+    "geometryMode": {},
+    "otherModeH": {},
+    "otherModeL": {},
+    "other": {}
+  }
+}

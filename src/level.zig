@@ -3,6 +3,7 @@ const Allocator = std.mem.Allocator;
 
 const Camera = @import("camera.zig").Camera;
 const Object = @import("object.zig").Object;
+const Warp = @import("warp.zig").Warp;
 const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
 
@@ -35,6 +36,7 @@ const LevelCommand = enum(i32) {
     CameraInit,
     CollisionMap,
     Object,
+    Warp,
 };
 
 const curLevelCommand = .None;
@@ -59,11 +61,13 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
 pub const Level = struct {
     mesh: Model,
     objects: std.ArrayList(Object),
+    warps: std.ArrayList(Warp),
     camera: Camera,
     screen: Screen,
     initialized: bool,
 
     fn parseLevel(self: *Level, path: [:0]u8) !void {
+        // Keep everything we alloc to read this level file in one place
         var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
         defer _ = arena.reset(.free_all);
 
@@ -113,6 +117,13 @@ pub const Level = struct {
                         ));
                     },
 
+                    .Warp => {
+                        try self.warps.append(std.heap.c_allocator, Warp.init(
+                            try std.fmt.parseInt(u32, tokens.items[i + 1], 10),
+                            tokens.items[i + 15],
+                        ));
+                    },
+
                     else => {
                         continue :tokenLoop;
                     }
@@ -123,17 +134,15 @@ pub const Level = struct {
 
     pub fn init(path: [:0]u8) !Level {
         var lv: Level = .{
-            // .arena = LevelAllocator.init(),
             .mesh = undefined,
             .objects = try std.ArrayList(Object).initCapacity(std.heap.c_allocator, 32),
+            .warps = try std.ArrayList(Warp).initCapacity(std.heap.c_allocator, 32),
             .camera = Camera.init(.{0, 0, 0}, .{0, 0, 0}),
             .screen = Screen.make(.{
                 100, 80, 80, 0xFF
             }),
             .initialized = false,
         };
-
-        // lv.arena.initAllocator();
 
         try lv.parseLevel(path);
 
@@ -160,9 +169,6 @@ pub const Level = struct {
 
         const disp = libdragon.c.display_get();
         const zbuf = libdragon.c.display_get_zbuf();
-
-        // log.logU32(@intFromPtr(disp));
-        // log.logU32(@intFromPtr(zbuf));
 
         rdpq.attach(disp, zbuf);
 

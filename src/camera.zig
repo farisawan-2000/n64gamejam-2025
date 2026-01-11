@@ -90,10 +90,7 @@ pub const Camera = struct {
             self.rot[@intFromEnum(RPY.yaw)]
         );
 
-        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 10.0, 150.0);
-        // log.logVec(self.pos);
-        // log.logVec(self.rot);
-        // log.logVec(lookat);
+        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 50.0, 800.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
             .{.xyz = lookat},
