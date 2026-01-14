@@ -61,9 +61,12 @@ fn zig_main() !void {
         const result = level.update();
         level.draw();
 
+        switch (result) {
+            .Ok => continue,
 
-        if (result == .Warp) {
-            level.handle_warp(1);
+            .Warp => |id| {
+                level.handle_warp(id);
+            },
         }
     }
 }

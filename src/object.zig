@@ -10,9 +10,9 @@ pub const ObjBehavior = enum {
     @"Rotating Gear",
 };
 
-pub const Result = enum {
+pub const Result = union(enum) {
     Ok,
-    Warp,
+    Warp: u32,
 };
 
 pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {

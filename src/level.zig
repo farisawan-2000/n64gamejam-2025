@@ -195,12 +195,12 @@ pub const Level = struct {
     pub fn tick(self: *Level) object.Result {
         var ret: object.Result = .Ok;
 
-        for (0.., self.objects.items) |i, *obj| {
-            log.logFmt("UPDATING {d}\n", .{i});
+        for (self.objects.items) |*obj| {
             const result = obj.update();
 
-            if (result != ret) {
-                ret = result;
+            switch (result) {
+                .Ok => continue,
+                else => ret = result,
             }
         }
 
@@ -235,8 +235,7 @@ pub const Level = struct {
 
             self.mesh.draw();
 
-            for (0.., self.objects.items) |i, *obj| {
-                log.logFmt("DRAWING {d}\n", .{i});
+            for (self.objects.items) |*obj| {
                 obj.draw();
             }
 
