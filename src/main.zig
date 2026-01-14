@@ -43,16 +43,6 @@ fn zig_main() !void {
     libdragon.c.rdpq_init();
     tiny3d.init(tiny3d.DEFAULT_MTX_STACK_SIZE);
 
-    // var cam = Camera.init(
-    //     .{0, 10.0, 40.0},
-    // );
-
-    // var theObj = Object.init(
-    //     objcode.default_init,
-    //     objcode.gear_update,
-    //     "rom:/model.t3dm"
-    // );
-
     level.load_new_level(@constCast("rom:/init.lvl")) catch unreachable;
 
     while (true) {

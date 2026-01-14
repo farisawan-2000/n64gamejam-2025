@@ -150,6 +150,20 @@ pub const Level = struct {
                         try self.objects.append(std.heap.c_allocator, Object.init(
                             objcode.default_init, objcode.default_update,
                             tokens.items[i + 1], tokens.items[i + 15],
+
+                            // pos
+                            .{
+                                try std.fmt.parseFloat(f32, tokens.items[i + 3]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 4]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 5]),
+                            },
+
+                            // rotation
+                            .{
+                                try std.fmt.parseFloat(f32, tokens.items[i + 7]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 8]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 9]),
+                            },
                         ));
                     },
 

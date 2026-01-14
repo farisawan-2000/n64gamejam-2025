@@ -66,6 +66,8 @@ pub const Object = struct {
         updateFPtr: *const fn(o: *Object) Result,
         modelPath: [:0]const u8,
         bhvString: [:0]const u8,
+        position: [3]f32,
+        rotation: [3]f32,
     ) Object {
         var obj = Object {
             .initFunc = initFPtr,
@@ -73,8 +75,8 @@ pub const Object = struct {
             .model = Model.load(modelPath),
             .behavior = token_to_behavior(bhvString),
 
-            .pos = .{0, 0, 0},
-            .rot = .{0, 0, 0},
+            .pos = position,
+            .rot = rotation,
             .scale = .{1, 1, 1},
 
             .data = [_]u32{ 0 } ** 8,
