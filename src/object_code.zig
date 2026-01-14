@@ -1,25 +1,43 @@
-const Object = @import("object.zig").Object;
+const object = @import("object.zig");
+const level = @import("level.zig");
 const contpad = @import("contpad.zig");
+const log = @import("logging.zig");
 
-pub fn default_init(o: *Object) void {
+
+const Object = object.Object;
+const Result = object.Result;
+
+
+pub fn default_init(o: *Object) Result {
     _ = o;
+
+    return .Ok;
 }
 
-pub fn default_update(o: *Object) void {
+pub fn default_update(o: *Object) Result {
     _ = o;
+
+    return .Ok;
 }
 
-pub fn gear_init(o: *Object) void {
+pub fn gear_init(o: *Object) Result {
     o.dataF[0] = 0.02;
+
+    return .Ok;
 }
 
-pub fn gear_update(o: *Object) void {
+pub fn gear_update(o: *Object) Result {
     const pad = contpad.getPad(1);
+
     if (pad.held.a) {
         o.dataF[0] += 0.001;
     }
     if (pad.held.b) {
         o.dataF[0] -= 0.001;
+    }
+
+    if (pad.pressed.z) {
+        return .Warp;
     }
 
     o.rot[2] -= o.dataF[0];
@@ -31,4 +49,6 @@ pub fn gear_update(o: *Object) void {
         0.1,
         0.1
     };
+
+    return .Ok;
 }

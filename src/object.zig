@@ -1,11 +1,18 @@
+const constants = @import("constants.zig");
 const std = @import("std");
 
 const Model = @import("tiny3d/model.zig").Model;
 const objcode = @import("object_code.zig");
+const log = @import("logging.zig");
 
 pub const ObjBehavior = enum {
     @"Static Object",
     @"Rotating Gear",
+};
+
+pub const Result = enum {
+    Ok,
+    Warp,
 };
 
 pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
@@ -31,11 +38,6 @@ pub fn set_obj_code(o: *Object) void {
             o.initFunc = objcode.gear_init;
             o.updateFunc = objcode.gear_update;
         },
-
-        else => {
-            o.initFunc = objcode.default_init;
-            o.updateFunc = objcode.default_update;
-        },
     }
 }
 
@@ -45,8 +47,8 @@ pub fn link(a: *Object, b: *Object) void {
 }
 
 pub const Object = struct {
-    initFunc: *const fn(o: *Object) void,
-    updateFunc: *const fn(o: *Object) void,
+    initFunc: *const fn(o: *Object) Result,
+    updateFunc: *const fn(o: *Object) Result,
     model: Model,
     behavior: ObjBehavior,
 
@@ -60,12 +62,12 @@ pub const Object = struct {
     dataF: [8]f32,
 
     pub fn init(
-        initFPtr: *const fn(o: *Object) void,
-        updateFPtr: *const fn(o: *Object) void,
+        initFPtr: *const fn(o: *Object) Result,
+        updateFPtr: *const fn(o: *Object) Result,
         modelPath: [:0]const u8,
         bhvString: [:0]const u8,
     ) Object {
-        return .{
+        var obj = Object {
             .initFunc = initFPtr,
             .updateFunc = updateFPtr,
             .model = Model.load(modelPath),
@@ -78,13 +80,22 @@ pub const Object = struct {
             .data = [_]u32{ 0 } ** 8,
             .dataF = [_]f32{ 0 } ** 8,
         };
+
+        obj.model.frameIndex = 0;
+
+        set_obj_code(&obj);
+
+        return obj;
     }
 
-    pub fn update(self: *Object) void {
-        self.updateFunc(self);
+    pub fn update(self: *Object) Result {
+        const result = self.updateFunc(self);
+
         self.model.scaleXYZ(self.scale);
         self.model.rotate(self.rot);
         self.model.move(self.pos);
+
+        return result;
     }
 
     pub fn draw(self: *Object) void {

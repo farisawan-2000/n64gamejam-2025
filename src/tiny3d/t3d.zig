@@ -54,3 +54,11 @@ pub fn matrix_pop(count: i32) void {
     c.t3d_matrix_pop(count);
 }
 
+pub fn free_model(model: ?*c.T3DModel) void {
+    c.t3d_model_free(model);
+}
+
+pub fn destroy() void {
+    c.t3d_destroy();
+}
+

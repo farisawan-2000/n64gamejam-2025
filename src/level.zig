@@ -2,12 +2,13 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 const Camera = @import("camera.zig").Camera;
-const Object = @import("object.zig").Object;
 const Warp = @import("warp.zig").Warp;
 const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
+const object = @import("object.zig");
 
 const objcode = @import("object_code.zig");
+const Object = object.Object;
 
 const tiny3d = @import("tiny3d/t3d.zig");
 const Screen = @import("tiny3d/screen.zig").Screen;
@@ -43,6 +44,8 @@ const curLevelCommand = .None;
 
 const MAX_OBJECTS = 256;
 
+var currentLevel: *Level = undefined;
+
 fn token_to_enum(token: [:0]const u8) LevelCommand {
     if (std.mem.eql(u8, token, "level")) {
         return .LevelModel;
@@ -53,12 +56,45 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
     else if (std.mem.eql(u8, token, "object")) {
         return .Object;
     }
+    else if (std.mem.eql(u8, token, "warp")) {
+        return .Warp;
+    }
     else {
         return .None;
     }
 }
 
+pub fn load_new_level(path: [:0]u8) !void {
+    const allocator = std.heap.raw_c_allocator;
+
+    currentLevel = try allocator.create(Level);
+    currentLevel.* = try Level.init(path);
+}
+
+pub fn handle_warp(warp_id: u32) void {
+    const allocator = std.heap.raw_c_allocator;
+
+    log.log("DESTROY LEVEL!\n");
+    log.logU32(@intFromPtr(currentLevel));
+
+    var path_local: [32:0]u8 = undefined;
+    @memcpy(&path_local, &currentLevel.warps.items[warp_id].level);
+
+    currentLevel.destroy(allocator);
+
+    load_new_level(&path_local) catch unreachable;
+}
+
+pub fn update() object.Result {
+    return currentLevel.tick();
+}
+
+pub fn draw() void {
+    currentLevel.draw();
+}
+
 pub const Level = struct {
+    _arena: std.heap.ArenaAllocator,
     mesh: Model,
     objects: std.ArrayList(Object),
     warps: std.ArrayList(Warp),
@@ -118,9 +154,10 @@ pub const Level = struct {
                     },
 
                     .Warp => {
+                        log.log("WARPP!\n");
                         try self.warps.append(std.heap.c_allocator, Warp.init(
                             try std.fmt.parseInt(u32, tokens.items[i + 1], 10),
-                            tokens.items[i + 15],
+                            tokens.items[i + 2],
                         ));
                     },
 
@@ -133,16 +170,20 @@ pub const Level = struct {
     }
 
     pub fn init(path: [:0]u8) !Level {
-        var lv: Level = .{
-            .mesh = undefined,
-            .objects = try std.ArrayList(Object).initCapacity(std.heap.c_allocator, 32),
-            .warps = try std.ArrayList(Warp).initCapacity(std.heap.c_allocator, 32),
-            .camera = Camera.init(.{0, 0, 0}, .{0, 0, 0}),
-            .screen = Screen.make(.{
-                100, 80, 80, 0xFF
-            }),
-            .initialized = false,
-        };
+        var lv: Level = undefined;
+
+        lv._arena = std.heap.ArenaAllocator.init(std.heap.c_allocator);
+
+        const allocator = lv._arena.allocator();
+
+        lv.mesh = undefined;
+        lv.objects = try std.ArrayList(Object).initCapacity(allocator, 32);
+        lv.warps = try std.ArrayList(Warp).initCapacity(allocator, 32);
+        lv.camera = Camera.init(.{0, 0, 0}, .{0, 0, 0});
+        lv.screen = Screen.make(.{
+            100, 80, 80, 0xFF
+        });
+        lv.initialized = false;
 
         try lv.parseLevel(path);
 
@@ -151,10 +192,19 @@ pub const Level = struct {
         return lv;
     }
 
-    pub fn tick(self: *Level) void {
-        for (self.objects.items) |*obj| {
-            obj.update();
+    pub fn tick(self: *Level) object.Result {
+        var ret: object.Result = .Ok;
+
+        for (0.., self.objects.items) |i, *obj| {
+            log.logFmt("UPDATING {d}\n", .{i});
+            const result = obj.update();
+
+            if (result != ret) {
+                ret = result;
+            }
         }
+
+        return ret;
     }
 
     pub fn draw(self: *Level) void {
@@ -185,7 +235,8 @@ pub const Level = struct {
 
             self.mesh.draw();
 
-            for (self.objects.items) |*obj| {
+            for (0.., self.objects.items) |i, *obj| {
+                log.logFmt("DRAWING {d}\n", .{i});
                 obj.draw();
             }
 
@@ -193,7 +244,11 @@ pub const Level = struct {
         }
     }
 
-    pub fn destroy() void {
-        // 
+    pub fn destroy(self: *Level, alloc: Allocator) void {
+        for (currentLevel.objects.items) |obj| {
+            obj.model.destroy();
+        }
+        self._arena.deinit();
+        alloc.destroy(self);
     }
 };

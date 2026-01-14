@@ -34,10 +34,13 @@ pub const File = struct {
     size: u32,
 
     pub fn open(path: [:0]const u8) File {
+        log.logFmt("OPENFILE {s}\n", .{path});
         var fileToReturn = File {
             .fptr = libdragon.c.fopen(path, "r"),
             .size = 0,
         };
+
+        log.logU32(@intFromPtr(fileToReturn.fptr));
 
         _ = libdragon.c.fseek(fileToReturn.fptr, 0, libdragon.c.SEEK_END);
         fileToReturn.size = @intCast(libdragon.c.ftell(fileToReturn.fptr));

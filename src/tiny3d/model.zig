@@ -7,6 +7,8 @@ const rdpq = libdragon.rdpq;
 const t3d = @import("t3d.zig");
 const Transform = @import("transform.zig").Transform;
 
+const log = @import("../logging.zig");
+
 pub const Model = struct {
     t3dmodel: ?*t3d.c.T3DModel,
     data: *libdragon.c.rspq_block_t,
@@ -63,6 +65,10 @@ pub const Model = struct {
 
         self.frameIndex += 1;
         self.frameIndex = @mod(self.frameIndex, constants.FB_COUNT);
+    }
+
+    pub fn destroy(self: *const Model) void {
+        t3d.free_model(self.t3dmodel);
     }
 };
 

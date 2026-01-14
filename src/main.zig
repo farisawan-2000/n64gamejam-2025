@@ -19,7 +19,7 @@ const math = @import("math.zig");
 const contpad = @import("contpad.zig");
 const Object = game.Object;
 const Camera = game.Camera;
-const Level = game.Level;
+const level = game.level;
 
 pub extern fn stop_game(arg_msg: [*c]const u8, arg_len: usize) noreturn;
 
@@ -53,13 +53,18 @@ fn zig_main() !void {
     //     "rom:/model.t3dm"
     // );
 
-    var initLevel = Level.init(@constCast("rom:/init.lvl")) catch unreachable;
+    level.load_new_level(@constCast("rom:/init.lvl")) catch unreachable;
 
     while (true) {
         contpad.update();
 
-        initLevel.tick();
-        initLevel.draw();
+        const result = level.update();
+        level.draw();
+
+
+        if (result == .Warp) {
+            level.handle_warp(1);
+        }
     }
 }
 
