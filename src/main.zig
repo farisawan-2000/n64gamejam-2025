@@ -19,6 +19,7 @@ const math = @import("math.zig");
 const contpad = @import("contpad.zig");
 const Object = game.Object;
 const Camera = game.Camera;
+const Wipe = game.Wipe;
 const level = game.level;
 
 pub extern fn stop_game(arg_msg: [*c]const u8, arg_len: usize) noreturn;
@@ -46,11 +47,13 @@ fn zig_main() !void {
 
     level.load_new_level(@constCast("rom:/init.lvl")) catch unreachable;
 
+    var wipe: Wipe = Wipe.init();
+
     while (true) {
         contpad.update();
 
         const result = level.update();
-
+        wipe.update();
 
         const disp = libdragon.c.display_get();
         const zbuf = libdragon.c.display_get_zbuf();
@@ -58,10 +61,7 @@ fn zig_main() !void {
         rdpq.attach(disp, zbuf);
 
         level.draw();
-
-        rdpq.set_combiner_mode_flat();
-        rdpq.set_prim_color(.{255, 255, 255, 0});
-        rdpq.triangle(.{0, 0}, .{160, 0}, .{160, 160});
+        wipe.draw();
 
         rdpq.detach_show();
 
