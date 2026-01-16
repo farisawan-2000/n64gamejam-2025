@@ -1,6 +1,8 @@
 pub const c = @cImport({
     @cInclude("libdragon.h");
     @cInclude("graphics.h");
+    @cInclude("rspq.h");
+    @cInclude("rdpq.h");
 });
 
 pub const rspq = @import("rspq.zig");

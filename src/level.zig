@@ -231,11 +231,6 @@ pub const Level = struct {
 
         lightDirVec.normalize();
 
-        const disp = libdragon.c.display_get();
-        const zbuf = libdragon.c.display_get_zbuf();
-
-        rdpq.attach(disp, zbuf);
-
         if (self.initialized) {
             tiny3d.frame_start();
             self.camera.update();
@@ -252,8 +247,6 @@ pub const Level = struct {
             for (self.objects.items) |*obj| {
                 obj.draw();
             }
-
-            rdpq.detach_show();
         }
     }
 

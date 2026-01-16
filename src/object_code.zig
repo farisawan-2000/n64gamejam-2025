@@ -44,11 +44,11 @@ pub fn gear_update(o: *Object) Result {
 
     o.rot[1] -= 0.004;
     o.rot[0] = 0;
-    o.scale = .{
-        0.1,
-        0.1,
-        0.1
-    };
+    // o.scale = .{
+    //     0.1,
+    //     0.1,
+    //     0.1
+    // };
 
     return .Ok;
 }

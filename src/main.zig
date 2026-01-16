@@ -22,6 +22,7 @@ const Camera = game.Camera;
 const level = game.level;
 
 pub extern fn stop_game(arg_msg: [*c]const u8, arg_len: usize) noreturn;
+pub extern fn test_screen() void;
 
 // Override on the panic function, which eventually just hooks into libdragon assert
 pub fn panic(msg: []const u8, stack_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
@@ -49,7 +50,20 @@ fn zig_main() !void {
         contpad.update();
 
         const result = level.update();
+
+
+        const disp = libdragon.c.display_get();
+        const zbuf = libdragon.c.display_get_zbuf();
+
+        rdpq.attach(disp, zbuf);
+
         level.draw();
+
+        rdpq.set_combiner_mode_flat();
+        rdpq.set_prim_color(.{255, 255, 255, 0});
+        rdpq.triangle(.{0, 0}, .{160, 0}, .{160, 160});
+
+        rdpq.detach_show();
 
         switch (result) {
             .Ok => continue,
