@@ -22,7 +22,11 @@ pub const Wipe = struct {
     pub fn update(self: *Wipe) void {
         FloatApproach(&self.stage, &self.goal, 0.5);
 
-        if (@abs(self.goal - self.stage) < 0.001 and self.ready == false) {
+        if (
+                self.goal == 1.0
+            and @abs(self.goal - self.stage) < 0.001
+            and self.ready == false
+        ) {
             self.goal = 0;
             self.ready = true;
         }
