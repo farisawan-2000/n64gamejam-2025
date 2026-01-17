@@ -49,6 +49,8 @@ fn zig_main() !void {
 
     var wipe: Wipe = Wipe.init();
 
+    var scheduled_id = 0;
+
     while (true) {
         contpad.update();
 
@@ -69,7 +71,10 @@ fn zig_main() !void {
             .Ok => continue,
 
             .Warp => |id| {
-                level.handle_warp(id);
+                wipe.goal = 1.0;
+
+                warp.scheduled_id = id;
+                // level.handle_warp(id);
             },
         }
     }

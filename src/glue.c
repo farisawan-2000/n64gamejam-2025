@@ -15,6 +15,10 @@ void set_combiner_mode_flat() {
     rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
 }
 
+void set_combiner_mode_shade() {
+    rdpq_mode_combiner(RDPQ_COMBINER_SHADE);
+}
+
 void test_screen() {
     float v0[2] = {0.0f, 0.0f};
     float v1[2] = {160.0f, 0.0f};
