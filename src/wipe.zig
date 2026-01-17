@@ -9,20 +9,22 @@ fn FloatApproach(dest: *f32, src: *f32, multiplier: f32) void {
 pub const Wipe = struct {
     stage: f32,
     goal: f32,
-    // state: u32,
+    ready: bool,
 
     pub fn init() Wipe {
         return .{
             .stage = 0.0,
             .goal = 0.0,
+            .ready = false,
         };
     }
 
     pub fn update(self: *Wipe) void {
         FloatApproach(&self.stage, &self.goal, 0.5);
 
-        if (@abs(self.goal - self.stage) < 0.001) {
+        if (@abs(self.goal - self.stage) < 0.001 and self.ready == false) {
             self.goal = 0;
+            self.ready = true;
         }
     }
 
