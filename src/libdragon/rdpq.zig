@@ -9,12 +9,20 @@ pub fn detach_show() void {
     libdragon.c.rdpq_detach_show();
 }
 
+pub fn mode_alphacompare(threshold: i32) void {
+    libdragon.c.rdpq_mode_alphacompare(threshold);
+}
+
 // pub fn textured_triangle(v1: [2]f32, v2: [2]f32, v3: [2]f32) void{
 
 // }
 // pub const CombinerMode = enum {
 //     COMBINER_FLAT,
 // };
+
+pub fn set_mode_standard() void {
+    libdragon.c.rdpq_set_mode_standard();
+}
 
 pub extern fn set_combiner_mode_flat() void;
 pub extern fn set_combiner_mode_shade() void;

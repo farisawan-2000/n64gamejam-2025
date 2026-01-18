@@ -1,0 +1,6 @@
+[submodule "ext/tiny3d"]
+	path = ext/tiny3d
+	url = https://github.com/farisawan-2000/tiny3d
+[submodule "ext/libdragon"]
+	path = ext/libdragon
+	url = https://github.com/farisawan-2000/libdragon-unstable

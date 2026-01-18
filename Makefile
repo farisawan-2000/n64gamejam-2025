@@ -8,7 +8,7 @@ N64_OBJDUMP = /opt/crashsdk/bin/mips-n64-objdump
 # include libdragon-unstable/n64.mk
 
 # We installed this on arch linux
-T3D_INST=/usr/include
+T3D_INST = ext/tiny3d
 
 include $(N64_INST)/include/n64.mk
 include $(T3D_INST)/t3d.mk
@@ -88,7 +88,8 @@ clean:
 	rm -rf $(BUILD_DIR)/
 
 libs:
-	$(MAKE) -C libdragon-unstable/
+	$(MAKE) -C ext/tiny3d
+	$(MAKE) -C ext/tiny3d/tools/gltf_importer/
 
 test: $(ROM)
 	ares $<

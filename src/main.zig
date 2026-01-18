@@ -63,6 +63,10 @@ fn zig_main() !void {
         rdpq.attach(disp, zbuf);
 
         level.draw();
+
+        // screen transition over everything else
+        rdpq.set_mode_standard();
+        rdpq.mode_alphacompare(50);
         wipe.draw();
 
         rdpq.detach_show();

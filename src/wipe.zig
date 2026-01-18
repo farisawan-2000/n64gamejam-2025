@@ -37,9 +37,9 @@ pub const Wipe = struct {
         // const interp_from_top: f32 = 120 * self.stage;
         // const interp_from_right: f32 = 320 - (160 * self.stage);
         // const interp_from_bottom: f32 = 240 - (120 * self.stage);
+        rdpq.set_combiner_mode_shade();
 
         if (self.stage > 0.001) {
-            rdpq.set_combiner_mode_shade();
             // rdpq.set_prim_color(.{255, 255, 255, @intFromFloat(self.stage * 256)});
 
             rdpq.colortri(.{0, 0}, .{320, 0}, .{320, 240}, .{1.0, 1.0, 1.0, self.stage});
