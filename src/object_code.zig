@@ -36,7 +36,7 @@ pub fn gear_update(o: *Object) Result {
         o.dataF[0] -= 0.001;
     }
 
-    if (pad.held.z) {
+    if (pad.pressed.z) {
         return .{ .Warp = 1 };
     }
 

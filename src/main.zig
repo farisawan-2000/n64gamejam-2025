@@ -54,7 +54,7 @@ fn zig_main() !void {
     while (true) {
         contpad.update();
 
-        const result = level.update();
+        const result = if (!wipe.ready) level.update() else .Ok;
         wipe.update();
 
         const disp = libdragon.c.display_get();
