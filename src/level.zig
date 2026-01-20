@@ -209,7 +209,10 @@ pub const Level = struct {
     pub fn tick(self: *Level) object.Result {
         var ret: object.Result = .Ok;
 
+        const dt = libdragon.display.get_delta_time();
+
         for (self.objects.items) |*obj| {
+            obj.deltaTime = dt;
             const result = obj.update();
 
             switch (result) {

@@ -49,7 +49,7 @@ fn zig_main() !void {
 
     var wipe: Wipe = Wipe.init();
 
-    var scheduled_id: u32 = 0;
+    var scheduled_warp_id: u32 = 0;
 
     while (true) {
         contpad.update();
@@ -72,7 +72,7 @@ fn zig_main() !void {
         rdpq.detach_show();
 
         if (wipe.ready) {
-            level.handle_warp(scheduled_id);
+            level.handle_warp(scheduled_warp_id);
             wipe.ready = false;
         }
 
@@ -82,7 +82,7 @@ fn zig_main() !void {
             .Warp => |id| {
                 wipe.goal = 1.0;
 
-                scheduled_id = id;
+                scheduled_warp_id = id;
             },
         }
     }

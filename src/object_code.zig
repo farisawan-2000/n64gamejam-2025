@@ -30,10 +30,10 @@ pub fn gear_update(o: *Object) Result {
     const pad = contpad.getPad(1);
 
     if (pad.held.a) {
-        o.dataF[0] += 0.001;
+        o.dataF[0] += o.deltaTime;
     }
     if (pad.held.b) {
-        o.dataF[0] -= 0.001;
+        o.dataF[0] -= o.deltaTime;
     }
 
     if (pad.pressed.z) {
@@ -49,6 +49,22 @@ pub fn gear_update(o: *Object) Result {
     //     0.1,
     //     0.1
     // };
+
+    return .Ok;
+}
+
+pub fn splash_init(o: *Object) Result {
+    o.data[0] = 0;
+
+    return .Ok;
+}
+
+pub fn splash_update(o: *Object) Result {
+    o.data[0] += 1;
+
+    if (o.data[0] > 60) {
+        return .{ .Warp = 1 };
+    }
 
     return .Ok;
 }

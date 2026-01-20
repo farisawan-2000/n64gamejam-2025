@@ -61,6 +61,9 @@ pub const Object = struct {
     data: [8]u32,
     dataF: [8]f32,
 
+    // deltatime
+    deltaTime: f32,
+
     pub fn init(
         initFPtr: *const fn(o: *Object) Result,
         updateFPtr: *const fn(o: *Object) Result,
@@ -74,6 +77,8 @@ pub const Object = struct {
             .updateFunc = updateFPtr,
             .model = Model.load(modelPath),
             .behavior = token_to_behavior(bhvString),
+
+            .deltaTime = 0.0,
 
             .pos = position,
             .rot = rotation,

@@ -7,5 +7,5 @@ pub const c = @cImport({
 
 pub const rspq = @import("rspq.zig");
 pub const rdpq = @import("rdpq.zig");
-
+pub const display = @import("display.zig");
 
