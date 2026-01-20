@@ -11,6 +11,10 @@
 /**
  * rdpq memes
  */
+void set_blend_mode_multiply() {
+    rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+}
+
 void set_combiner_mode_flat() {
     rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
 }

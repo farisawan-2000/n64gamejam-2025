@@ -1,3 +1,9 @@
+//
+// Ignore this file.
+//  It's just a test app based on a libdragon example,
+//   to see if this project was even worth the effort.
+//
+
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 

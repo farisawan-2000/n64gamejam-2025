@@ -20,7 +20,7 @@ pub const Wipe = struct {
     }
 
     pub fn update(self: *Wipe) void {
-        FloatApproach(&self.stage, &self.goal, 0.5);
+        FloatApproach(&self.stage, &self.goal, 0.2);
 
         if (
                 self.goal == 1.0
@@ -38,6 +38,7 @@ pub const Wipe = struct {
         // const interp_from_right: f32 = 320 - (160 * self.stage);
         // const interp_from_bottom: f32 = 240 - (120 * self.stage);
         rdpq.set_combiner_mode_shade();
+        rdpq.set_blend_mode_multiply();
 
         if (self.stage > 0.001) {
             // rdpq.set_prim_color(.{255, 255, 255, @intFromFloat(self.stage * 256)});

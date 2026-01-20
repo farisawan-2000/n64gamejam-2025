@@ -26,6 +26,7 @@ pub fn set_mode_standard() void {
 
 pub extern fn set_combiner_mode_flat() void;
 pub extern fn set_combiner_mode_shade() void;
+pub extern fn set_blend_mode_multiply() void;
 
 pub fn set_fill_color(color: [4]u8) void {
     libdragon.c.rdpq_set_fill_color(.{
