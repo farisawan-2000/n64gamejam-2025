@@ -13,7 +13,7 @@ pub const Wipe = struct {
 
     pub fn init() Wipe {
         return .{
-            .stage = 0.0,
+            .stage = 1.0,
             .goal = 0.0,
             .ready = false,
         };

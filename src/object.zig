@@ -13,6 +13,7 @@ pub const ObjBehavior = enum {
 pub const Result = union(enum) {
     Ok,
     Warp: u32,
+    SetCameraFocus: [3]f32,
 };
 
 pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
