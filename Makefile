@@ -57,6 +57,11 @@ filesystem/%.lvl: assets/%.lvl
 	@echo "    [LEVEL] $@"
 	cp $< $@
 
+filesystem/%.txt: assets/%.txt
+	@mkdir -p $(dir $@)
+	@echo "    [TEXT] $@"
+	cp $< $@
+
 filesystem/%.font64: assets/%.ttf
 	@mkdir -p $(dir $@)
 	@echo "    [FONT] $@"
