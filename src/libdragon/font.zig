@@ -28,25 +28,31 @@ pub const Font = struct {
 };
 
 pub const Textbox = struct {
-    fileptr: ?*libdragon.c.FILE,
+    textbuf: [1024:0]u8,
     cursor_position: i32,
+    current_file: *File,
 
     pub fn init(textpath: [:0]u8, x: u32, y: u32, w: u32, h: u32) Textbox {
         // open file
         // 
+        var ret = Textbox {
+            .current_file = File.open(textpath),
+            .textbuf = [_]u8{0} ** 1024,
+            .cursor_position = 0,
+        };
     }
 
     pub fn draw() void {
-        rdpq_paragraph_t* par = rdpq_paragraph_build(&(rdpq_textparms_t){
-            // .line_spacing = -3,
-            .align = ALIGN_LEFT,
-            .valign = VALIGN_CENTER,
-            .width = box_width,
-            .height = box_height,
-            .wrap = WRAP_WORD,
-        }, FONT_PACIFICO, text, &self.cursor_position);
+        // rdpq_paragraph_t* par = rdpq_paragraph_build(&(rdpq_textparms_t){
+        //     // .line_spacing = -3,
+        //     .align = ALIGN_LEFT,
+        //     .valign = VALIGN_CENTER,
+        //     .width = box_width,
+        //     .height = box_height,
+        //     .wrap = WRAP_WORD,
+        // }, FONT_PACIFICO, text, &self.cursor_position);
 
-        rdpq_paragraph_render(par, x0, y0);
-        rdpq_paragraph_free(par);
+        // rdpq_paragraph_render(par, x0, y0);
+        // rdpq_paragraph_free(par);
     }
 };

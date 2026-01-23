@@ -84,6 +84,8 @@ fn zig_main() !void {
 
                 scheduled_warp_id = id;
             },
+
+            else => continue,
         }
     }
 }

@@ -3,6 +3,6 @@ zig-out/
 jam2025
 build/
 filesystem/
-notes/planning
+notes/
 *.z64
 
