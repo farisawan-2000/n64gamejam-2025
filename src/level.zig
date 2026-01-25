@@ -7,6 +7,8 @@ const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
 const object = @import("object.zig");
 
+const math = @import("math.zig");
+
 const objcode = @import("object_code.zig");
 const Object = object.Object;
 
@@ -83,6 +85,29 @@ pub fn handle_warp(warp_id: u32) void {
     currentLevel.destroy(allocator);
 
     load_new_level(&path_local) catch unreachable;
+}
+
+pub fn nearestObjWithBehavior(self: *Object, bhv: object.ObjBehavior) ?*Object {
+    var closest_dist: f32 = 99999999.0;
+    var ret: ?*Object = null;
+
+    for (currentLevel.objects) |*obj| {
+        if (obj.behavior != bhv) {
+            continue;
+        }
+
+        const gotDist = math.distance3(self.pos, obj.pos);
+        if (gotDist < closest_dist) {
+            ret = obj;
+            closest_dist = gotDist;
+        }
+    }
+
+    return ret;
+}
+
+pub fn getCurrentLevel() *Level {
+    return currentLevel;
 }
 
 pub fn update() object.Result {
