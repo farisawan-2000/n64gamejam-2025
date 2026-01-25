@@ -69,6 +69,7 @@ pub const Object = struct {
     scale: [3]f32,
 
     // User data:
+    param: u32,
     data: [8]u32,
     dataF: [8]f32,
 
@@ -82,6 +83,7 @@ pub const Object = struct {
         bhvString: [:0]const u8,
         position: [3]f32,
         rotation: [3]f32,
+        paramVal: u32,
     ) Object {
         var obj = Object {
             .initFunc = initFPtr,
@@ -97,6 +99,7 @@ pub const Object = struct {
 
             .data = [_]u32{ 0 } ** 8,
             .dataF = [_]f32{ 0 } ** 8,
+            .param = paramVal,
         };
 
         obj.model.frameIndex = 0;

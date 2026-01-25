@@ -93,6 +93,10 @@ pub fn draw() void {
     currentLevel.draw();
 }
 
+pub fn getCamera() *Camera {
+    return &currentLevel.camera;
+}
+
 pub const Level = struct {
     _arena: std.heap.ArenaAllocator,
     mesh: Model,
@@ -164,6 +168,8 @@ pub const Level = struct {
                                 try std.fmt.parseFloat(f32, tokens.items[i + 8]),
                                 try std.fmt.parseFloat(f32, tokens.items[i + 9]),
                             },
+                            // param
+                            try std.fmt.parseInt(u32, tokens.items[i + 11], 10),
                         ));
                     },
 
