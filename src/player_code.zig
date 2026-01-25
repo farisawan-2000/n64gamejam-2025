@@ -24,6 +24,9 @@ pub fn player_update(self: *Object) Result {
         self.pos[1] -= 100.0 * self.deltaTime;
     }
 
+    self.pos[0] += @as(f32, @floatFromInt(pad.stick_x)) * self.deltaTime;
+    self.pos[2] += @as(f32, @floatFromInt(pad.stick_y)) * self.deltaTime;
+
     return .{.SetCameraFocus = self.pos};
 }
 
