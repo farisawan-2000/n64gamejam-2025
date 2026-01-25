@@ -93,7 +93,7 @@ pub const Camera = struct {
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 50.0, 800.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
-            .{.xyz = lookat},
+            .{.xyz = self.rot},
             .{.xyz = .{0,1,0}}
         );
         self.viewport.attach();

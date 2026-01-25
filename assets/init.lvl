@@ -1,6 +1,5 @@
 level rom:/level1tiny.t3dm
 camera pos 300 300 300 rot 45 0 45 mode freecam
-object rom:/model.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv gear
-object rom:/model.t3dm pos 100 0 0 rot 0 0 0 scale 1 1 1 bhv gear
+object rom:/player1.t3dm pos 0 100 0 rot 0 0 0 scale 1 1 1 bhv fighter param 1
 warp 0 rom:/init.lvl
 warp 1 rom:/level2.lvl

@@ -3,11 +3,13 @@ const std = @import("std");
 
 const Model = @import("tiny3d/model.zig").Model;
 const objcode = @import("object_code.zig");
+const playercode = @import("player_code.zig");
 const log = @import("logging.zig");
 
 pub const ObjBehavior = enum {
     @"Static Object",
     @"Rotating Gear",
+    @"Player Fighter",
 };
 
 pub const Result = union(enum) {
@@ -22,6 +24,9 @@ pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
     }
     else if (std.mem.eql(u8, token, "gear")) {
         return .@"Rotating Gear";
+    }
+    else if (std.mem.eql(u8, token, "fighter")) {
+        return .@"Player Fighter";
     }
     else {
         return .@"Static Object";
@@ -38,6 +43,11 @@ pub fn set_obj_code(o: *Object) void {
         .@"Rotating Gear" => {
             o.initFunc = objcode.gear_init;
             o.updateFunc = objcode.gear_update;
+        },
+
+        .@"Player Fighter" => {
+            o.initFunc = playercode.player_init;
+            o.updateFunc = playercode.player_update;
         },
     }
 }

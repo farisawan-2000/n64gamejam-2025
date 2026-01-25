@@ -217,6 +217,9 @@ pub const Level = struct {
 
             switch (result) {
                 .Ok => continue,
+                .SetCameraFocus => |focus| {
+                    self.camera.rotTarget = focus;
+                },
                 else => ret = result,
             }
         }
