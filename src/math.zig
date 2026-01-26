@@ -1,4 +1,5 @@
 const libdragon = @import("libdragon/libdragon.zig");
+const tiny3d = @import("tiny3d/t3d.zig");
 
 pub const pi = 3.14159265359;
 pub const tau = 2 * pi;
@@ -37,3 +38,6 @@ pub fn degree_clamp(x: *f32) void {
     while (x.* <= -360) : (x.* += 360) {}
 }
 
+pub fn deg_to_rad(x: f32) f32 {
+    return tiny3d.DEG_TO_RAD(x);
+}

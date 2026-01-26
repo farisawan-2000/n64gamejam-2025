@@ -71,22 +71,14 @@ pub const Camera = struct {
             self.yaw -= 45;
         }
 
+        if (pad.held.c_up) {
+            self.pitch += 1;
+        }
+        if (pad.held.c_down) {
+            self.pitch -= 1;
+        }
+
         math.degree_clamp(&self.yaw);
-
-        log.logFmt("NEW ANGLE {d}\n", .{self.yaw});
-
-        // if (pad.held.c_up) {
-        //     self.lookTarget[@intFromEnum(RPY.pitch)] += 0.25;
-        //     if (self.lookTarget[@intFromEnum(RPY.pitch)] > 180.0) {
-        //         self.lookTarget[@intFromEnum(RPY.pitch)] = 180.0;
-        //     }
-        // }
-        // if (pad.held.c_down) {
-        //     self.lookTarget[@intFromEnum(RPY.pitch)] -= 0.25;
-        //     if (self.lookTarget[@intFromEnum(RPY.pitch)] < 0) {
-        //         self.lookTarget[@intFromEnum(RPY.pitch)] = 0;
-        //     }
-        // }
 
         // var lookat: [3]f32 = undefined;
         VectorExtend(&self.posTarget,
@@ -98,8 +90,6 @@ pub const Camera = struct {
 
         VectorApproach(&self.pos, self.posTarget, 0.25);
         VectorApproach(&self.look, self.lookTarget, 0.25);
-
-        log.logVec(self.pos);
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 50.0, 800.0);
         self.viewport.look_at(
