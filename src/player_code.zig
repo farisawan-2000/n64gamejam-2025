@@ -2,11 +2,15 @@ const object = @import("object.zig");
 const level = @import("level.zig");
 const contpad = @import("contpad.zig");
 const log = @import("logging.zig");
-
+const math = @import("math.zig");
 
 const Object = object.Object;
 const Result = object.Result;
 
+// DATAF LAYOUT
+pub const DataFLayout = enum(u32) {
+    Yaw = 0,
+};
 
 pub fn player_init(self: *Object) Result {
     _ = self;
@@ -24,9 +28,26 @@ pub fn player_update(self: *Object) Result {
         self.pos[1] -= 100.0 * self.deltaTime;
     }
 
-    self.pos[0] += @as(f32, @floatFromInt(pad.stick_x)) * self.deltaTime;
-    self.pos[2] += @as(f32, @floatFromInt(pad.stick_y)) * self.deltaTime;
+    self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
+        -@as(f32, @floatFromInt(pad.stick_x)),
+         @as(f32, @floatFromInt(pad.stick_x))
+    ) + level.getCamera().yaw;
 
-    return .{.SetCameraFocus = self.pos};
+    math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+
+    self.pos[0] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+    self.pos[2] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+
+
+    if (self.param == 1) {
+        const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
+
+        return .{.SetCameraFocus = math.between3(
+            self.pos,
+            nearestPly.pos
+        )};
+    } else {
+        return .Ok;
+    }
 }
 

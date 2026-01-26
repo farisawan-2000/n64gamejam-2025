@@ -91,7 +91,10 @@ pub fn nearestObjWithBehavior(self: *Object, bhv: object.ObjBehavior) ?*Object {
     var closest_dist: f32 = 99999999.0;
     var ret: ?*Object = null;
 
-    for (currentLevel.objects) |*obj| {
+    for (currentLevel.objects.items) |*obj| {
+        if (obj == self) {
+            continue;
+        }
         if (obj.behavior != bhv) {
             continue;
         }
@@ -165,14 +168,14 @@ pub const Level = struct {
                             try std.fmt.parseFloat(f32, tokens.items[i + 3]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 4]),
                         };
-                        self.camera.rotTarget = .{
+                        self.camera.lookTarget = .{
                             try std.fmt.parseFloat(f32, tokens.items[i + 6]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 7]),
                             try std.fmt.parseFloat(f32, tokens.items[i + 8]),
                         };
 
                         self.camera.pos = self.camera.posTarget;
-                        self.camera.rot = self.camera.rotTarget;
+                        self.camera.look = self.camera.lookTarget;
                     },
 
                     .Object => {
@@ -194,7 +197,7 @@ pub const Level = struct {
                                 try std.fmt.parseFloat(f32, tokens.items[i + 9]),
                             },
                             // param
-                            try std.fmt.parseInt(u32, tokens.items[i + 11], 10),
+                            try std.fmt.parseInt(u32, tokens.items[i + 17], 10),
                         ));
                     },
 
@@ -249,7 +252,7 @@ pub const Level = struct {
             switch (result) {
                 .Ok => continue,
                 .SetCameraFocus => |focus| {
-                    self.camera.rotTarget = focus;
+                    self.camera.lookTarget = focus;
                 },
                 else => ret = result,
             }
