@@ -19,14 +19,17 @@ pub fn player_init(self: *Object) Result {
 }
 
 pub fn player_update(self: *Object) Result {
-    const pad = contpad.getPad(@bitCast(self.param));
+    const pad = contpad.getPad(@intCast(self.param));
 
     if (pad.pressed.a) {
         self.vel[1] = 50;
     }
 
-    if (pad.stick_y < constants.DEADZONE and pad.stick_x < constants.DEADZONE) {
+    if (math.abs(i8, pad.stick_y) < constants.DEADZONE
+    and math.abs(i8, pad.stick_x) < constants.DEADZONE) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = 0;
+        self.vel[0] = 0;
+        self.vel[2] = 0;
     } else {    
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
             -@as(f32, @floatFromInt(pad.stick_y)),
@@ -35,11 +38,13 @@ pub fn player_update(self: *Object) Result {
 
         math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
 
-        self.pos[0] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-        self.pos[2] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[0] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[2] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
 
+    self.pos[0] += self.vel[0];
     self.pos[1] += self.vel[1];
+    self.pos[2] += self.vel[2];
 
     self.vel[1] += constants.GRAVITY;
 

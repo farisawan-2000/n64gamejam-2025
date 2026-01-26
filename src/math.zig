@@ -41,3 +41,11 @@ pub fn degree_clamp(x: *f32) void {
 pub fn deg_to_rad(x: f32) f32 {
     return tiny3d.DEG_TO_RAD(x);
 }
+
+pub fn abs(comptime T: type, x: T) T {
+    if (x < 0) {
+        return -x;
+    } else {
+        return x;
+    }
+}
