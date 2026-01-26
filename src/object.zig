@@ -68,6 +68,8 @@ pub const Object = struct {
     rot: [3]f32,
     scale: [3]f32,
 
+    vel: [3]f32,
+
     // User data:
     param: u32,
     data: [8]u32,
@@ -96,6 +98,8 @@ pub const Object = struct {
             .pos = position,
             .rot = rotation,
             .scale = .{1, 1, 1},
+
+            .vel = .{0, 0, 0},
 
             .data = [_]u32{ 0 } ** 8,
             .dataF = [_]f32{ 0 } ** 8,

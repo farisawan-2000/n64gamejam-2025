@@ -21,12 +21,8 @@ pub fn player_init(self: *Object) Result {
 pub fn player_update(self: *Object) Result {
     const pad = contpad.getPad(@bitCast(self.param));
 
-    if (pad.held.a) {
-        self.pos[1] += 100.0 * self.deltaTime;
-    }
-
-    if (pad.held.b) {
-        self.pos[1] -= 100.0 * self.deltaTime;
+    if (pad.pressed.a) {
+        self.vel[1] = 50;
     }
 
     if (pad.stick_y < constants.DEADZONE and pad.stick_x < constants.DEADZONE) {
@@ -41,6 +37,14 @@ pub fn player_update(self: *Object) Result {
 
         self.pos[0] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
         self.pos[2] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+    }
+
+    self.pos[1] += self.vel[1];
+
+    self.vel[1] += constants.GRAVITY;
+
+    if (self.pos[1] < 0.0) {
+        self.pos[1] = 0.0;
     }
 
     if (self.param == 1) {
