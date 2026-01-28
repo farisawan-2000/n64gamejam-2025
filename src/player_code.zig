@@ -25,6 +25,12 @@ pub fn player_update(self: *Object) Result {
         self.vel[1] = 50;
     }
 
+    var stickmag = math.mag2(i32, pad.stick_x, pad.stick_y);
+
+    if (stickmag > 64) {
+        stickmag = 64;
+    }
+
     if (@abs(pad.stick_y) < constants.DEADZONE
     and @abs(pad.stick_x) < constants.DEADZONE) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = 0;
@@ -39,8 +45,8 @@ pub fn player_update(self: *Object) Result {
 
         math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
 
-        self.vel[0] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-        self.vel[2] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
 
     self.pos[0] += self.vel[0];
