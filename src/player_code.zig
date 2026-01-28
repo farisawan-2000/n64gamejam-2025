@@ -25,8 +25,8 @@ pub fn player_update(self: *Object) Result {
         self.vel[1] = 50;
     }
 
-    if (math.abs(i8, pad.stick_y) < constants.DEADZONE
-    and math.abs(i8, pad.stick_x) < constants.DEADZONE) {
+    if (@abs(pad.stick_y) < constants.DEADZONE
+    and @abs(pad.stick_x) < constants.DEADZONE) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = 0;
         self.vel[0] = 0;
         self.vel[2] = 0;
@@ -53,9 +53,6 @@ pub fn player_update(self: *Object) Result {
     }
 
     if (self.param == 1) {
-
-        log.logFmt("YAW: {d}\n", .{self.dataF[@intFromEnum(DataFLayout.Yaw)]});
-
         const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 
         return .{.SetCameraFocus = math.between3(

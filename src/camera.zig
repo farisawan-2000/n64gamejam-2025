@@ -91,7 +91,7 @@ pub const Camera = struct {
         VectorApproach(&self.pos, self.posTarget, 0.25);
         VectorApproach(&self.look, self.lookTarget, 0.25);
 
-        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 50.0, 800.0);
+        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 100.0, 10000.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
             .{.xyz = self.look},

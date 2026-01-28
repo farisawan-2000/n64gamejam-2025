@@ -4,7 +4,7 @@
 
 ContPad PollController(int port) {
     joypad_poll();
-    joypad_inputs_t joypad = joypad_get_inputs(JOYPAD_PORT_1);
+    joypad_inputs_t joypad = joypad_get_inputs(port);
     joypad_buttons_t keysPressed = joypad_get_buttons_pressed(port);
     joypad_buttons_t keysHeld = joypad_get_buttons_held(port);
 
@@ -44,8 +44,8 @@ ContPad PollController(int port) {
     ret.pressed.c_left      = keysPressed.c_left;
     ret.pressed.c_right     = keysPressed.c_right;
 
-    ret.stick_x = joypad.stick_x;
-    ret.stick_y = joypad.stick_y;
+    ret.stick_x = joypad.stick_x & 0xFF;
+    ret.stick_y = joypad.stick_y & 0xFF;
 
     // TODO: gc support?
 
