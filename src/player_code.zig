@@ -32,14 +32,15 @@ pub fn player_update(self: *Object) Result {
         self.vel[2] = 0;
     } else {    
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
-            -@as(f32, @floatFromInt(pad.stick_y)),
+             @as(f32, @floatFromInt(pad.stick_y)),
              @as(f32, @floatFromInt(pad.stick_x))
-        ) + math.deg_to_rad(level.getCamera().yaw);
+        ) + math.deg_to_rad(level.getCamera().yaw) + (math.pi / 2.0);
+
 
         math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
 
-        self.vel[0] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-        self.vel[2] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[0] += math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[2] += math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
 
     self.pos[0] += self.vel[0];

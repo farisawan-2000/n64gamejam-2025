@@ -16,6 +16,7 @@ pub const ContPad = c.ContPad;
 var pads: [4]ContPad = undefined;
 
 pub fn update() void {
+    libdragon.c.joypad_poll();
     pads = .{
         c.PollController(libdragon.c.JOYPAD_PORT_1),
         c.PollController(libdragon.c.JOYPAD_PORT_2),

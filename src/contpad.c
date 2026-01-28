@@ -3,7 +3,6 @@
 
 
 ContPad PollController(int port) {
-    joypad_poll();
     joypad_inputs_t joypad = joypad_get_inputs(port);
     joypad_buttons_t keysPressed = joypad_get_buttons_pressed(port);
     joypad_buttons_t keysHeld = joypad_get_buttons_held(port);
