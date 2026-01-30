@@ -21,11 +21,31 @@ fn VectorExtend(dest: *[3]f32, src: [3]f32, dist: f32, pitch: f32, yaw: f32) voi
     dest[2] = src[2] + dist * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(pitch)) * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(yaw));
 }
 
-const RPY = enum(usize) {
-    roll,
-    pitch,
-    yaw,
+pub const Mode = enum(usize) {
+    @"Free Camera Movement" = 0,
+    @"Focus On One Subject" = 1,
+    @"Focus Between 2 Subjects" = 2,
 };
+
+pub fn mode_freecam(self: *Camera) void {
+    const pad = contpad.getPad(1);
+
+    if (pad.pressed.c_left) {
+        self.yaw += 45;
+    }
+    if (pad.pressed.c_right) {
+        self.yaw -= 45;
+    }
+
+    if (pad.held.c_up) {
+        self.pitch += 1;
+    }
+    if (pad.held.c_down) {
+        self.pitch -= 1;
+    }
+
+    math.degree_clamp(&self.yaw);
+}
 
 pub const Camera = struct {
     pos: [3]f32,
@@ -58,28 +78,6 @@ pub const Camera = struct {
     }
 
     pub fn update(self: *Camera) void {
-        const pad = contpad.getPad(1);
-
-        // self.posTarget[0] += @as(f32, @floatFromInt(pad.stick_x)) / 20.0;
-        // self.posTarget[2] += @as(f32, @floatFromInt(-pad.stick_y)) / 20.0;
-
-
-        if (pad.pressed.c_left) {
-            self.yaw += 45;
-        }
-        if (pad.pressed.c_right) {
-            self.yaw -= 45;
-        }
-
-        if (pad.held.c_up) {
-            self.pitch += 1;
-        }
-        if (pad.held.c_down) {
-            self.pitch -= 1;
-        }
-
-        math.degree_clamp(&self.yaw);
-
         // var lookat: [3]f32 = undefined;
         VectorExtend(&self.posTarget,
             self.lookTarget,

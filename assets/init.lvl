@@ -1,6 +1,4 @@
-level rom:/blockout.t3dm
-camera pos 300 300 300 rot 45 0 45 mode freecam
-object rom:/player1.t3dm pos 0 100 0 rot 0 0 0 scale 1 1 1 bhv fighter param 1
-object rom:/player2.t3dm pos 0 100 0 rot 0 0 0 scale 1 1 1 bhv fighter param 2
-warp 0 rom:/init.lvl
-warp 1 rom:/level2.lvl
+level rom:/title.t3dm
+camera pos 300 0 0 look 0 0 0 mode fixed
+object rom:/null.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv warpbutton param 0
+warp 0 rom:/main_stage.lvl

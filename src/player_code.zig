@@ -59,6 +59,19 @@ pub fn player_update(self: *Object) Result {
         self.pos[1] = 0.0;
     }
 
+    if (self.pos[0] < -constants.LEVEL_BOUND) {
+        self.pos[0] = -constants.LEVEL_BOUND;
+    }
+    if (self.pos[0] > constants.LEVEL_BOUND) {
+        self.pos[0] = constants.LEVEL_BOUND;
+    }
+    if (self.pos[2] < -constants.LEVEL_BOUND) {
+        self.pos[2] = -constants.LEVEL_BOUND;
+    }
+    if (self.pos[2] > constants.LEVEL_BOUND) {
+        self.pos[2] = constants.LEVEL_BOUND;
+    }
+
     if (self.param == 1) {
         const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 

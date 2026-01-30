@@ -20,6 +20,16 @@ pub fn default_update(o: *Object) Result {
     return .Ok;
 }
 
+pub fn press_button_to_warp(o: *Object) Result {
+    const pad = contpad.getPad(1);
+
+    if (pad.pressed.a) {
+        return .{.Warp = o.param};
+    } else {
+        return .Ok;
+    }
+}
+
 pub fn gear_init(o: *Object) Result {
     o.dataF[0] = 0.02;
 

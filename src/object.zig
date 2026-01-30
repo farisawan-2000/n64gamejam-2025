@@ -10,6 +10,7 @@ pub const ObjBehavior = enum {
     @"Static Object",
     @"Rotating Gear",
     @"Player Fighter",
+    @"Press Button To Warp",
 };
 
 pub const Result = union(enum) {
@@ -27,6 +28,9 @@ pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
     }
     else if (std.mem.eql(u8, token, "fighter")) {
         return .@"Player Fighter";
+    }
+    else if (std.mem.eql(u8, token, "warpbutton")) {
+        return .@"Press Button To Warp";
     }
     else {
         return .@"Static Object";
@@ -49,6 +53,11 @@ pub fn set_obj_code(o: *Object) void {
             o.initFunc = playercode.player_init;
             o.updateFunc = playercode.player_update;
         },
+
+        .@"Press Button To Warp" => {
+            o.initFunc = objcode.default_init;
+            o.updateFunc = objcode.press_button_to_warp;
+        }
     }
 }
 

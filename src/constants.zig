@@ -8,3 +8,5 @@ pub const FB_COUNT = 3;
 pub const GRAVITY = -5;
 
 pub const DEADZONE = 8;
+
+pub const LEVEL_BOUND = 1000;
