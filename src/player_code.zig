@@ -8,13 +8,31 @@ const math = @import("math.zig");
 const Object = object.Object;
 const Result = object.Result;
 
+const State = enum(u32) {
+    Idle,
+    Walk,
+    Jump,
+    DoubleJump,
+    Attack,
+    AttackAir,
+    Win,
+    Lose,
+};
+
 // DATAF LAYOUT
 pub const DataFLayout = enum(u32) {
     Yaw = 0,
+    Timer = 1,
+};
+
+pub const DataLayout = enum(u32) {
+    State = 0,
+    NextState = 1,
 };
 
 pub fn player_init(self: *Object) Result {
-    _ = self;
+    self.set_field(DataLayout, .State, State, .Idle);
+    self.set_field(DataLayout, .NextState, State, .Idle);
     return .Ok;
 }
 
@@ -31,12 +49,11 @@ pub fn player_update(self: *Object) Result {
         stickmag = 64;
     }
 
-    if (@abs(pad.stick_y) < constants.DEADZONE
-    and @abs(pad.stick_x) < constants.DEADZONE) {
-        self.dataF[@intFromEnum(DataFLayout.Yaw)] = 0;
-        self.vel[0] = 0;
-        self.vel[2] = 0;
-    } else {    
+    if (stickmag < constants.DEADZONE) {
+        stickmag = 0;
+    }
+
+    if (stickmag > 0) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
              @as(f32, @floatFromInt(pad.stick_y)),
              @as(f32, @floatFromInt(pad.stick_x))

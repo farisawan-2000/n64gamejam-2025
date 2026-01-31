@@ -87,6 +87,15 @@ pub const Object = struct {
     // deltatime
     deltaTime: f32,
 
+    pub fn set_field(o: *Object, comptime E1: type, idx: E1,
+                                 comptime E2: type, val: E2) void {
+        o.data[@intFromEnum(idx)] = @intFromEnum(val);
+    }
+
+    pub fn set_fieldF(o: *Object, comptime E1: type, idx: E1, val: f32) void {
+        o.data[@intFromEnum(idx)] = val;
+    }
+
     pub fn init(
         initFPtr: *const fn(o: *Object) Result,
         updateFPtr: *const fn(o: *Object) Result,

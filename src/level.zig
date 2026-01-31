@@ -145,7 +145,6 @@ pub const Level = struct {
         const a_alloc = arena.allocator();
 
         while (lvFile.readline()) |line| {
-            log.logFmt("Line: {s}\n", .{line.to_buf()});
             // Tokenize the line using spaces as the delimiter
             var tokenizer = std.mem.tokenizeAny(u8, line.to_buf(), " ");
             var tokens = try std.ArrayList([:0]const u8).initCapacity(a_alloc, 32);
@@ -269,7 +268,7 @@ pub const Level = struct {
     }
 
     pub fn draw(self: *Level) void {
-        const ambientLightColor:     [4]u8 = .{80, 80, 100, 0xFF};
+        const ambientLightColor:     [4]u8 = .{0x80, 0x80, 0x80, 0xFF};
         const directionalLightColor: [4]u8 = .{0xEE, 0xAA, 0xAA, 0xFF};
 
         const lightDirVec: Vec3 = .{
