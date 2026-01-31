@@ -87,13 +87,22 @@ pub const Object = struct {
     // deltatime
     deltaTime: f32,
 
+    pub fn get_field(o: *Object, comptime E1: type, idx: E1) u32 {
+        return o.data[@intFromEnum(idx)];
+    }
+
     pub fn set_field(o: *Object, comptime E1: type, idx: E1,
+                                 val: u32) void {
+        o.data[@intFromEnum(idx)] = val;
+    }
+
+    pub fn set_fieldE(o: *Object, comptime E1: type, idx: E1,
                                  comptime E2: type, val: E2) void {
         o.data[@intFromEnum(idx)] = @intFromEnum(val);
     }
 
     pub fn set_fieldF(o: *Object, comptime E1: type, idx: E1, val: f32) void {
-        o.data[@intFromEnum(idx)] = val;
+        o.dataF[@intFromEnum(idx)] = val;
     }
 
     pub fn init(

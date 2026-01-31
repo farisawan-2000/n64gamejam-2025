@@ -30,9 +30,21 @@ pub const DataLayout = enum(u32) {
     NextState = 1,
 };
 
+pub fn player_state_proc(self: *Object) void {
+
+
+
+    if (self.get_field(DataLayout, .NextState) != self.get_field(DataLayout, .State)) {
+        self.set_field(DataLayout, .NextState, self.get_field(DataLayout, .NextState));
+        self.set_fieldF(DataFLayout, .Timer, 0.0);
+    } else {
+
+    }
+}
+
 pub fn player_init(self: *Object) Result {
-    self.set_field(DataLayout, .State, State, .Idle);
-    self.set_field(DataLayout, .NextState, State, .Idle);
+    self.set_fieldE(DataLayout, .State, State, .Idle);
+    self.set_fieldE(DataLayout, .NextState, State, .Idle);
     return .Ok;
 }
 
@@ -62,9 +74,11 @@ pub fn player_update(self: *Object) Result {
 
         math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
 
-        self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-        self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
+    self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+    self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+
+    player_state_proc(self);
 
     self.pos[0] += self.vel[0];
     self.pos[1] += self.vel[1];
