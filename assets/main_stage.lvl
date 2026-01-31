@@ -3,5 +3,6 @@ camera pos 300 600 300 rot 0 0 0 mode freecam
 object rom:/player1.t3dm pos 300 100 300 rot 0 0 0 scale 1 1 1 bhv fighter param 1
 object rom:/player2.t3dm pos -300 100 -300 rot 0 0 0 scale 1 1 1 bhv fighter param 2
 object rom:/ready.t3dm pos 0 100 0 rot 0 0 0 scale 1 1 1 bhv ready param 0
+object rom:/go.t3dm pos 0 100 0 rot 0 0 0 scale 0.5 0.5 0.5 bhv ready param 0
 warp 1 rom:/results_p1win.lvl
 warp 2 rom:/results_p2win.lvl

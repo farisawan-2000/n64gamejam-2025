@@ -85,10 +85,15 @@ pub const Object = struct {
     dataF: [8]f32,
 
     // deltatime
+    timer: f32,
     deltaTime: f32,
 
     pub fn get_field(o: *Object, comptime E1: type, idx: E1) u32 {
         return o.data[@intFromEnum(idx)];
+    }
+
+    pub fn get_fieldE(o: *Object, comptime E1: type, idx: E1, comptime E2: type) E2 {
+        return @enumFromInt(o.data[@intFromEnum(idx)]);
     }
 
     pub fn set_field(o: *Object, comptime E1: type, idx: E1,
@@ -121,6 +126,7 @@ pub const Object = struct {
             .model = Model.load(modelPath),
             .behavior = token_to_behavior(bhvString),
 
+            .timer = 0.0,
             .deltaTime = 0.0,
 
             .pos = position,
@@ -147,6 +153,8 @@ pub const Object = struct {
         self.model.scaleXYZ(self.scale);
         self.model.rotate(self.rot);
         self.model.move(self.pos);
+
+        self.timer += self.deltaTime;
 
         return result;
     }
