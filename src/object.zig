@@ -94,6 +94,7 @@ pub const Object = struct {
         bhvString: [:0]const u8,
         position: [3]f32,
         rotation: [3]f32,
+        scaleInit: [3]f32,
         paramVal: u32,
     ) Object {
         var obj = Object {
@@ -106,7 +107,7 @@ pub const Object = struct {
 
             .pos = position,
             .rot = rotation,
-            .scale = .{1, 1, 1},
+            .scale = scaleInit,
 
             .vel = .{0, 0, 0},
 

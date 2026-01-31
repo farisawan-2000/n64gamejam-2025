@@ -196,13 +196,20 @@ pub const Level = struct {
                                 try std.fmt.parseFloat(f32, tokens.items[i + 8]),
                                 try std.fmt.parseFloat(f32, tokens.items[i + 9]),
                             },
+
+                            // scale
+                            .{
+                                try std.fmt.parseFloat(f32, tokens.items[i + 11]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 12]),
+                                try std.fmt.parseFloat(f32, tokens.items[i + 13]),
+                            },
+
                             // param
                             try std.fmt.parseInt(u32, tokens.items[i + 17], 10),
                         ));
                     },
 
                     .Warp => {
-                        log.log("WARPP!\n");
                         try self.warps.append(std.heap.c_allocator, Warp.init(
                             try std.fmt.parseInt(u32, tokens.items[i + 1], 10),
                             tokens.items[i + 2],

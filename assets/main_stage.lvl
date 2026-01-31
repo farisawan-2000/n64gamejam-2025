@@ -1,5 +1,5 @@
 level rom:/blockout.t3dm
-camera pos 300 300 300 rot 45 0 45 mode freecam
+camera pos 300 600 300 rot 0 0 0 mode freecam
 object rom:/player1.t3dm pos 300 100 300 rot 0 0 0 scale 1 1 1 bhv fighter param 1
 object rom:/player2.t3dm pos -300 100 -300 rot 0 0 0 scale 1 1 1 bhv fighter param 2
 object rom:/ready.t3dm pos 0 100 0 rot 0 0 0 scale 1 1 1 bhv ready param 0
