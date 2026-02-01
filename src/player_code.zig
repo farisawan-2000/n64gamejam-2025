@@ -15,6 +15,8 @@ const State = enum(u32) {
     DoubleJump,
     Attack,
     AttackAir,
+    DownAirInit,
+    DownAirAttack,
     Win,
     Lose,
 };
@@ -31,6 +33,8 @@ pub const DataFLayout = enum(u32) {
 pub const DataLayout = enum(u32) {
     State = 0,
     NextState = 1,
+    AffectedByGravity = 2,
+    CanMove = 3,
 };
 
 fn set_state(self: *Object, state: State) void {
@@ -44,6 +48,9 @@ fn set_next_state(self: *Object, state: State) void {
 pub fn player_idle(self: *Object) void {
     const pad = contpad.getPad(@intCast(self.param));
 
+    self.set_field(DataLayout, .AffectedByGravity, 1);
+    self.set_field(DataLayout, .CanMove, 1);
+
     self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
 
     if (pad.pressed.a) {
@@ -53,6 +60,25 @@ pub fn player_idle(self: *Object) void {
 
     if (pad.pressed.b) {
         set_next_state(self, .Attack);
+    }
+}
+
+pub fn player_dair_init(self: *Object) void {
+    self.set_field(DataLayout, .AffectedByGravity, 0);
+    self.set_field(DataLayout, .CanMove, 0);
+    self.vel[1] = 0.0;
+
+    if (self.timer > 0.5) {
+        set_next_state(self, .DownAirAttack);
+    }
+}
+
+pub fn player_dair_attack(self: *Object) void {
+    self.set_field(DataLayout, .AffectedByGravity, 1);
+
+    if (self.pos[1] == 0.0) {
+        set_next_state(self, .Idle);
+        self.set_field(DataLayout, .CanMove, 1);
     }
 }
 
@@ -73,6 +99,10 @@ pub fn player_jump(self: *Object) void {
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
     }
+
+    if (pad.pressed.z) {
+        set_next_state(self, .DownAirInit);
+    }
 }
 
 pub fn player_djump(self: *Object) void {
@@ -86,6 +116,10 @@ pub fn player_djump(self: *Object) void {
 
     if (pad.pressed.b) {
         set_next_state(self, .AttackAir);
+    }
+
+    if (pad.pressed.z) {
+        set_next_state(self, .DownAirInit);
     }
 }
 
@@ -114,6 +148,8 @@ pub fn player_state_proc(self: *Object) void {
         .DoubleJump => player_djump(self),
         .Attack => player_attack(self),
         .AttackAir => player_attack_air(self),
+        .DownAirInit => player_dair_init(self),
+        .DownAirAttack => player_dair_attack(self),
         else => unreachable,
     }
 
@@ -124,6 +160,7 @@ pub fn player_state_proc(self: *Object) void {
 }
 
 pub fn player_init(self: *Object) Result {
+    self.data[@intFromEnum(DataLayout.AffectedByGravity)] = 1;
     self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
     self.set_fieldE(DataLayout, .State, State, .Idle);
     self.set_fieldE(DataLayout, .NextState, State, .Idle);
@@ -142,6 +179,11 @@ pub fn player_update(self: *Object) Result {
     if (stickmag < constants.DEADZONE) {
         stickmag = 0;
     }
+
+    if (self.get_field(DataLayout, .CanMove) == 0) {
+        stickmag = 0;
+    }
+
 
     if (stickmag > 0) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
@@ -165,7 +207,9 @@ pub fn player_update(self: *Object) Result {
 
     self.rot[1] = self.dataF[@intFromEnum(DataFLayout.Yaw)];
 
-    self.vel[1] += constants.GRAVITY;
+    if (self.get_field(DataLayout, .AffectedByGravity) == 1) {
+        self.vel[1] += constants.GRAVITY;
+    }
 
     if (self.pos[1] < 0.0) {
         self.pos[1] = 0.0;
