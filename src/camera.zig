@@ -44,6 +44,8 @@ pub fn mode_freecam(self: *Camera) void {
         self.pitch -= 1;
     }
 
+    self.posTarget[1] = self.height;
+
     math.degree_clamp(&self.yaw);
 }
 
@@ -54,6 +56,7 @@ pub const Camera = struct {
     lookTarget: [3]f32,
     pitch: f32,
     yaw: f32,
+    height: f32,
 
     viewport: Viewport,
 
@@ -66,6 +69,7 @@ pub const Camera = struct {
         return .{
             .pos = position,
             .posTarget = position,
+            .height = position[1],
 
             .look = lookat_pos,
             .lookTarget = lookat_pos,
@@ -88,6 +92,8 @@ pub const Camera = struct {
 
         VectorApproach(&self.pos, self.posTarget, 0.25);
         VectorApproach(&self.look, self.lookTarget, 0.25);
+
+        self.pos[1] = self.height;
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 100.0, 8000.0);
         self.viewport.look_at(

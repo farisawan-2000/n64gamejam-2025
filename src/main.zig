@@ -23,7 +23,6 @@ const Wipe = game.Wipe;
 const level = game.level;
 
 pub extern fn stop_game(arg_msg: [*c]const u8, arg_len: usize) noreturn;
-pub extern fn test_screen() void;
 
 // Override on the panic function, which eventually just hooks into libdragon assert
 pub fn panic(msg: []const u8, stack_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {

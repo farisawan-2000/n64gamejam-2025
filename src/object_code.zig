@@ -21,8 +21,18 @@ pub fn default_update(o: *Object) Result {
 }
 
 pub fn readygo_update(o: *Object) Result {
-    if (o.timer > 0.5) {
-        o.change_model("rom:/go.t3dm");
+    if (o.timer > 0.75) {
+        if (o.data[0] == 0) {
+            o.change_model("rom:/go.t3dm");
+            o.data[0] = 1;
+        }
+    }
+
+    if (o.timer > 1.5) {
+        if (o.data[0] == 1) {
+            o.change_model("rom:/null.t3dm");
+            o.data[0] = 2;
+        }
     }
 
     return .Ok;
