@@ -67,8 +67,11 @@ pub const Model = struct {
         self.frameIndex = @mod(self.frameIndex, constants.FB_COUNT);
     }
 
-    pub fn destroy(self: *const Model) void {
+    pub fn destroy(self: *Model) void {
+        self.firstDraw = false;
         t3d.free_model(self.t3dmodel);
+        rspq.block_free(self.data);
+        self.data = undefined;
     }
 };
 

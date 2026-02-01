@@ -9,6 +9,8 @@ pub const c = @cImport({
 
 const Vec3 = @import("vec3.zig").Vec3;
 
+extern fn free_model_glue(model: ?*c.T3DModel) void;
+
 //---------------------------------------------
 //               INTERMEDIATE GLUE
 //---------------------------------------------
@@ -55,7 +57,7 @@ pub fn matrix_pop(count: i32) void {
 }
 
 pub fn free_model(model: ?*c.T3DModel) void {
-    c.t3d_model_free(model);
+    free_model_glue(model);
 }
 
 pub fn destroy() void {

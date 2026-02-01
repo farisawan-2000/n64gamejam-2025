@@ -11,6 +11,7 @@ pub const ObjBehavior = enum {
     @"Rotating Gear",
     @"Player Fighter",
     @"Press Button To Warp",
+    @"Ready/Go Popup",
 };
 
 pub const Result = union(enum) {
@@ -31,6 +32,9 @@ pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
     }
     else if (std.mem.eql(u8, token, "warpbutton")) {
         return .@"Press Button To Warp";
+    }
+    else if (std.mem.eql(u8, token, "readygo")) {
+        return .@"Ready/Go Popup";
     }
     else {
         return .@"Static Object";
@@ -57,7 +61,12 @@ pub fn set_obj_code(o: *Object) void {
         .@"Press Button To Warp" => {
             o.initFunc = objcode.default_init;
             o.updateFunc = objcode.press_button_to_warp;
-        }
+        },
+
+        .@"Ready/Go Popup" => {
+            o.initFunc = objcode.default_init;
+            o.updateFunc = objcode.readygo_update;
+        },
     }
 }
 
@@ -87,6 +96,11 @@ pub const Object = struct {
     // deltatime
     timer: f32,
     deltaTime: f32,
+
+    pub fn change_model(o: *Object, path: [:0]const u8) void {
+        o.model.destroy();
+        o.model = Model.load(path);
+    }
 
     pub fn get_field(o: *Object, comptime E1: type, idx: E1) u32 {
         return o.data[@intFromEnum(idx)];

@@ -297,7 +297,7 @@ pub const Level = struct {
     }
 
     pub fn destroy(self: *Level, alloc: Allocator) void {
-        for (currentLevel.objects.items) |obj| {
+        for (currentLevel.objects.items) |*obj| {
             obj.model.destroy();
         }
         self._arena.deinit();

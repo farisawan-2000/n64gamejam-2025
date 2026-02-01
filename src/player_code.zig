@@ -19,10 +19,13 @@ const State = enum(u32) {
     Lose,
 };
 
+const ATTACK_TIME = 0.25;
+
 // DATAF LAYOUT
 pub const DataFLayout = enum(u32) {
     Yaw = 0,
     Timer = 1,
+    BaseYaw = 2,
 };
 
 pub const DataLayout = enum(u32) {
@@ -41,6 +44,8 @@ fn set_next_state(self: *Object, state: State) void {
 pub fn player_idle(self: *Object) void {
     const pad = contpad.getPad(@intCast(self.param));
 
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
+
     if (pad.pressed.a) {
         self.vel[1] = 50;
         set_next_state(self, .Jump);
@@ -53,6 +58,8 @@ pub fn player_idle(self: *Object) void {
 
 pub fn player_jump(self: *Object) void {
     const pad = contpad.getPad(@intCast(self.param));
+
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
 
     if (pad.pressed.a) {
         self.vel[1] = 50;
@@ -71,6 +78,8 @@ pub fn player_jump(self: *Object) void {
 pub fn player_djump(self: *Object) void {
     const pad = contpad.getPad(@intCast(self.param));
 
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
+
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
     }
@@ -81,11 +90,20 @@ pub fn player_djump(self: *Object) void {
 }
 
 pub fn player_attack(self: *Object) void {
-    self.dataF[@intFromEnum(DataFLayout.Yaw)] += 0.01;
-    math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.5;
+    math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.BaseYaw)]);
 
-    if (self.timer > 60.0) {
+    if (self.timer > ATTACK_TIME) {
         set_next_state(self, .Idle);
+    }
+}
+
+pub fn player_attack_air(self: *Object) void {
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.5;
+    math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.BaseYaw)]);
+
+    if (self.timer > ATTACK_TIME) {
+        set_next_state(self, .Jump);
     }
 }
 
@@ -95,11 +113,8 @@ pub fn player_state_proc(self: *Object) void {
         .Jump => player_jump(self),
         .DoubleJump => player_djump(self),
         .Attack => player_attack(self),
+        .AttackAir => player_attack_air(self),
         else => unreachable,
-    }
-
-    if (self.param == 1) {
-        log.logU32(self.get_field(DataLayout, .NextState));
     }
 
     if (self.get_field(DataLayout, .NextState) != self.get_field(DataLayout, .State)) {
@@ -109,6 +124,7 @@ pub fn player_state_proc(self: *Object) void {
 }
 
 pub fn player_init(self: *Object) Result {
+    self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
     self.set_fieldE(DataLayout, .State, State, .Idle);
     self.set_fieldE(DataLayout, .NextState, State, .Idle);
     return .Ok;
@@ -140,9 +156,14 @@ pub fn player_update(self: *Object) Result {
 
     player_state_proc(self);
 
+    self.dataF[@intFromEnum(DataFLayout.Yaw)] += self.dataF[@intFromEnum(DataFLayout.BaseYaw)];
+    math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+
     self.pos[0] += self.vel[0];
     self.pos[1] += self.vel[1];
     self.pos[2] += self.vel[2];
+
+    self.rot[1] = self.dataF[@intFromEnum(DataFLayout.Yaw)];
 
     self.vel[1] += constants.GRAVITY;
 

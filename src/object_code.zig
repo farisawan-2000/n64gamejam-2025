@@ -20,6 +20,14 @@ pub fn default_update(o: *Object) Result {
     return .Ok;
 }
 
+pub fn readygo_update(o: *Object) Result {
+    if (o.timer > 0.5) {
+        o.change_model("rom:/go.t3dm");
+    }
+
+    return .Ok;
+}
+
 pub fn press_button_to_warp(o: *Object) Result {
     const pad = contpad.getPad(1);
 
