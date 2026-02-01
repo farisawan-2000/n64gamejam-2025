@@ -17,6 +17,7 @@ const State = enum(u32) {
     AttackAir,
     DownAirInit,
     DownAirAttack,
+    Damaged,
     Win,
     Lose,
 };
@@ -28,6 +29,7 @@ pub const DataFLayout = enum(u32) {
     Yaw = 0,
     Timer = 1,
     BaseYaw = 2,
+    Damage = 3,
 };
 
 pub const DataLayout = enum(u32) {
@@ -78,6 +80,7 @@ pub fn player_dair_attack(self: *Object) void {
 
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
+        level.damage_stage(10.0);
         self.set_field(DataLayout, .CanMove, 1);
     }
 }
@@ -150,7 +153,17 @@ pub fn player_state_proc(self: *Object) void {
         .AttackAir => player_attack_air(self),
         .DownAirInit => player_dair_init(self),
         .DownAirAttack => player_dair_attack(self),
+        // .Damage => player_damage(self),
         else => unreachable,
+    }
+
+    const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
+
+    if ((nearestPly.get_fieldE(DataLayout, .State, State) == .AttackAir)
+     or (nearestPly.get_fieldE(DataLayout, .State, State) == .Attack)) {
+        // surely this wont ruin the game!
+        self.dataF[@intFromEnum(DataFLayout.Damage)] += 10.0;
+        // self.
     }
 
     if (self.get_field(DataLayout, .NextState) != self.get_field(DataLayout, .State)) {
@@ -162,6 +175,7 @@ pub fn player_state_proc(self: *Object) void {
 pub fn player_init(self: *Object) Result {
     self.data[@intFromEnum(DataLayout.AffectedByGravity)] = 1;
     self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
+    self.dataF[@intFromEnum(DataFLayout.Damage)] = 0.0;
     self.set_fieldE(DataLayout, .State, State, .Idle);
     self.set_fieldE(DataLayout, .NextState, State, .Idle);
     return .Ok;
@@ -193,8 +207,11 @@ pub fn player_update(self: *Object) Result {
 
         math.radian_clamp(&self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
-    self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-    self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+
+    if (self.get_fieldE(DataLayout, .State, State) != .Damaged) {
+        self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+    }
 
     player_state_proc(self);
 
@@ -228,8 +245,9 @@ pub fn player_update(self: *Object) Result {
         self.pos[2] = constants.LEVEL_BOUND;
     }
 
+    const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
+
     if (self.param == 1) {
-        const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 
         return .{.SetCameraFocus = math.between3(
             self.pos,

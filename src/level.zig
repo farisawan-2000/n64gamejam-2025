@@ -27,6 +27,8 @@ const log = @import("logging.zig");
 
 const MAX_OBJS = 64;
 
+var stage_damage: f32 = 0.0;
+
 pub const LevelType = enum(i32) {
     @"Splash Screen",
     @"2D Scene",
@@ -63,6 +65,14 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
     }
     else {
         return .None;
+    }
+}
+
+pub fn damage_stage(val: f32) void {
+    stage_damage += val;
+
+    if (stage_damage > 20.0) {
+        getCurrentLevel().change_model("rom:/blockout2.t3dm");
     }
 }
 
@@ -133,6 +143,11 @@ pub const Level = struct {
     camera: Camera,
     screen: Screen,
     initialized: bool,
+
+    fn change_model(self: *Level, path: [:0]const u8) void {
+        self.mesh.destroy();
+        self.mesh = Model.load(path);
+    }
 
     fn parseLevel(self: *Level, path: [:0]u8) !void {
         // Keep everything we alloc to read this level file in one place
