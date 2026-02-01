@@ -258,6 +258,8 @@ pub const Level = struct {
 
         lv.initialized = true;
 
+        stage_damage = 0;
+
         return lv;
     }
 

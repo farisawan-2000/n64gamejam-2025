@@ -144,6 +144,14 @@ pub fn player_attack_air(self: *Object) void {
     }
 }
 
+pub fn player_damaged(self: *Object) void {
+    log.logFmt("Yeeeowch!\n", .{});
+
+    if (self.pos[1] == 0.0) {
+        set_next_state(self, .Idle);
+    }
+}
+
 pub fn player_state_proc(self: *Object) void {
     switch (self.get_fieldE(DataLayout, .State, State)) {
         .Idle => player_idle(self),
@@ -153,17 +161,20 @@ pub fn player_state_proc(self: *Object) void {
         .AttackAir => player_attack_air(self),
         .DownAirInit => player_dair_init(self),
         .DownAirAttack => player_dair_attack(self),
-        // .Damage => player_damage(self),
+        .Damaged => player_damaged(self),
         else => unreachable,
     }
 
     const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 
-    if ((nearestPly.get_fieldE(DataLayout, .State, State) == .AttackAir)
-     or (nearestPly.get_fieldE(DataLayout, .State, State) == .Attack)) {
-        // surely this wont ruin the game!
-        self.dataF[@intFromEnum(DataFLayout.Damage)] += 10.0;
-        // self.
+    if (math.dist3(self.pos, nearestPly.pos) < 200.0) {
+        if ((nearestPly.get_fieldE(DataLayout, .State, State) == .AttackAir)
+         or (nearestPly.get_fieldE(DataLayout, .State, State) == .Attack)) {
+            // surely this wont ruin the game!
+            self.dataF[@intFromEnum(DataFLayout.Damage)] += 10.0;
+            set_next_state(self, .Damaged);
+            self.vel = math.pushaway(self.pos, nearestPly.pos, 2.0);
+        }
     }
 
     if (self.get_field(DataLayout, .NextState) != self.get_field(DataLayout, .State)) {
@@ -234,15 +245,19 @@ pub fn player_update(self: *Object) Result {
 
     if (self.pos[0] < -constants.LEVEL_BOUND) {
         self.pos[0] = -constants.LEVEL_BOUND;
+        self.vel[0] *= -1;
     }
     if (self.pos[0] > constants.LEVEL_BOUND) {
         self.pos[0] = constants.LEVEL_BOUND;
+        self.vel[0] *= -1;
     }
     if (self.pos[2] < -constants.LEVEL_BOUND) {
         self.pos[2] = -constants.LEVEL_BOUND;
+        self.vel[2] *= -1;
     }
     if (self.pos[2] > constants.LEVEL_BOUND) {
         self.pos[2] = constants.LEVEL_BOUND;
+        self.vel[2] *= -1;
     }
 
     const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;

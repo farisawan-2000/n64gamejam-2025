@@ -47,3 +47,18 @@ pub fn mag2(comptime T: type, x: T, y: T) f32 {
     const val = (x * x) + (y * y);
     return tiny3d.c.sqrtf(@floatFromInt(val));
 }
+
+pub fn dist3(pos0: [3]f32, pos1: [3]f32) f32 {
+    const val0 = (pos0[0] - pos1[0]) * (pos0[0] - pos1[0]);
+    const val1 = (pos0[1] - pos1[1]) * (pos0[1] - pos1[1]);
+    const val2 = (pos0[2] - pos1[2]) * (pos0[2] - pos1[2]);
+    return tiny3d.c.sqrtf(val0 + val1 + val2);
+}
+
+pub fn pushaway(pos0: [3]f32, pos1: [3]f32, strength: f32) [3]f32 {
+    const val0 = (pos0[0] - pos1[0]);
+    const val1 = (pos0[1] - pos1[1]);
+    const val2 = (pos0[2] - pos1[2]);
+
+    return .{-(val0 * strength), -(val1 * strength), -(val2 * strength)};
+}
