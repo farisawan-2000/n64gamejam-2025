@@ -187,9 +187,9 @@ pub fn player_state_proc(self: *Object) void {
                 set_next_state(self, .Damaged);
                 self.vel = math.pushaway(self.pos, nearestPly.pos, 1.0);
                 self.vel[1] = 50.0;
-                if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 10.0) {
+                if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 100.0) {
                     set_next_state(self, .Lose);
-                    // self.change_model(if (self.param == 1) "rom:/player1_4.t3dm" else "rom:/player2_4.t3dm");
+                    self.change_model(if (self.param == 1) "rom:/player1_4.t3dm" else "rom:/player2_4.t3dm");
                 } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 70.0) {
                     self.change_model(if (self.param == 1) "rom:/player1_3.t3dm" else "rom:/player2_3.t3dm");
                 } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 30.0) {

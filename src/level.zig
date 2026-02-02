@@ -202,6 +202,7 @@ pub const Level = struct {
                         };
 
                         self.camera.pos = self.camera.posTarget;
+                        self.camera.height = self.camera.pos[1];
                         self.camera.look = self.camera.lookTarget;
                         self.camera.mode = camera.token_to_mode(tokens.items[i + 10]);
                     },

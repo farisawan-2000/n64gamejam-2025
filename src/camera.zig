@@ -87,7 +87,7 @@ pub const Camera = struct {
             .mode = .@"Fixed Camera",
             .pos = position,
             .posTarget = position,
-            .height = position[1],
+            .height = 0,
 
             .look = lookat_pos,
             .lookTarget = lookat_pos,
@@ -119,10 +119,9 @@ pub const Camera = struct {
                     self.yaw
                 );
 
+                self.posTarget[1] = self.height;
                 VectorApproach(&self.pos, self.posTarget, 0.25);
                 VectorApproach(&self.look, self.lookTarget, 0.25);
-
-                self.pos[1] = self.height;
             },
         }
 
@@ -132,6 +131,8 @@ pub const Camera = struct {
             .{.xyz = self.look},
             .{.xyz = .{0,1,0}}
         );
+
+        log.logVec(self.pos);
         self.viewport.attach();
     }
 

@@ -1,6 +1,6 @@
 level rom:/results_p2.t3dm
 camera pos 0 600 1000 rot 0 0 0 mode fixed
 object rom:/null.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv warpbutton param 0
-object rom:/player1.t3dm pos 120 150 0 rot 0 0 0 scale 1 1 1 bhv static param 0
+object rom:/player1_4.t3dm pos 120 150 0 rot 0 0 0 scale 1 1 1 bhv static param 0
 object rom:/player2.t3dm pos -120 300 0 rot 0 0 0 scale 1 1 1 bhv static param 0
 warp 0 rom:/main_stage.lvl
