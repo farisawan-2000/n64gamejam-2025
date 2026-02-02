@@ -150,6 +150,18 @@ pub fn player_damaged(self: *Object) void {
     }
 }
 
+pub fn player_lose(self: *Object) void {
+    self.vel = .{0, 0, 0};
+}
+
+
+
+
+
+
+
+
+
 pub fn player_state_proc(self: *Object) void {
     switch (self.get_fieldE(DataLayout, .State, State)) {
         .Idle => player_idle(self),
@@ -160,6 +172,7 @@ pub fn player_state_proc(self: *Object) void {
         .DownAirInit => player_dair_init(self),
         .DownAirAttack => player_dair_attack(self),
         .Damaged => player_damaged(self),
+        .Lose => player_lose(self),
         else => unreachable,
     }
 
@@ -174,6 +187,14 @@ pub fn player_state_proc(self: *Object) void {
                 set_next_state(self, .Damaged);
                 self.vel = math.pushaway(self.pos, nearestPly.pos, 1.0);
                 self.vel[1] = 50.0;
+                if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 10.0) {
+                    set_next_state(self, .Lose);
+                    // self.change_model(if (self.param == 1) "rom:/player1_4.t3dm" else "rom:/player2_4.t3dm");
+                } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 70.0) {
+                    self.change_model(if (self.param == 1) "rom:/player1_3.t3dm" else "rom:/player2_3.t3dm");
+                } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 30.0) {
+                    self.change_model(if (self.param == 1) "rom:/player1_2.t3dm" else "rom:/player2_2.t3dm");
+                }
             }
         }
     }
@@ -183,6 +204,10 @@ pub fn player_state_proc(self: *Object) void {
         self.timer = 0.0;
     }
 }
+
+
+
+
 
 pub fn player_init(self: *Object) Result {
     self.data[@intFromEnum(DataLayout.AffectedByGravity)] = 1;
@@ -263,8 +288,8 @@ pub fn player_update(self: *Object) Result {
 
     const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 
-    if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 30) {
-        return .{.Warp = if (self.param == 1) 0 else 1};
+    if ((self.timer >= 1.0) and (self.get_fieldE(DataLayout, .State, State) == .Lose)) {
+        return .{.Warp = if (self.param == 1) 5 else 4};
     }
 
     if (self.param == 1) {

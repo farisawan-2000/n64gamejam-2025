@@ -1,7 +1,8 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
-const Camera = @import("camera.zig").Camera;
+const camera = @import("camera.zig");
+const Camera = camera.Camera;
 const Warp = @import("warp.zig").Warp;
 const Model = @import("tiny3d/model.zig").Model;
 const LevelAllocator = @import("allocators/level_allocator.zig").LevelAllocator;
@@ -71,7 +72,9 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
 pub fn damage_stage(val: f32) void {
     stage_damage += val;
 
-    if (stage_damage > 20.0) {
+    if (stage_damage >= 60.0) {
+        getCurrentLevel().change_model("rom:/blockout3.t3dm");
+    } else if (stage_damage >= 30.0) {
         getCurrentLevel().change_model("rom:/blockout2.t3dm");
     }
 }
@@ -200,6 +203,7 @@ pub const Level = struct {
 
                         self.camera.pos = self.camera.posTarget;
                         self.camera.look = self.camera.lookTarget;
+                        self.camera.mode = camera.token_to_mode(tokens.items[i + 10]);
                     },
 
                     .Object => {

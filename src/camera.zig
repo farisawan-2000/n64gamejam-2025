@@ -1,3 +1,4 @@
+const std = @import("std");
 const constants = @import("constants.zig");
 const log = @import("logging.zig");
 
@@ -8,6 +9,27 @@ const Vec3 = @import("tiny3d/vec3.zig").Vec3;
 const Viewport = @import("tiny3d/viewport.zig").Viewport;
 
 const math = @import("math.zig");
+
+pub const Mode = enum(usize) {
+    @"Fixed Camera" = 0,
+    @"Free Camera Movement" = 1,
+    @"Focus On One Subject" = 2,
+    @"Focus Between 2 Subjects" = 3,
+};
+
+pub fn token_to_mode(token: [:0]const u8) Mode {
+    if (std.mem.eql(u8, token, "freecam")) {
+        return .@"Free Camera Movement";
+    }
+    else if (std.mem.eql(u8, token, "fixed")) {
+        return .@"Fixed Camera";
+    }
+    else if (std.mem.eql(u8, token, "main")) {
+        return .@"Focus Between 2 Subjects";
+    } else {
+        unreachable;
+    }
+}
 
 fn VectorApproach(dest: *[3]f32, src: [3]f32, multiplier: f32) void {
     for (dest, src) |*a, b| {
@@ -20,12 +42,6 @@ fn VectorExtend(dest: *[3]f32, src: [3]f32, dist: f32, pitch: f32, yaw: f32) voi
     dest[1] = src[1] + dist * tiny3d.c.sinf(tiny3d.DEG_TO_RAD(pitch));
     dest[2] = src[2] + dist * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(pitch)) * tiny3d.c.cosf(tiny3d.DEG_TO_RAD(yaw));
 }
-
-pub const Mode = enum(usize) {
-    @"Free Camera Movement" = 0,
-    @"Focus On One Subject" = 1,
-    @"Focus Between 2 Subjects" = 2,
-};
 
 pub fn mode_freecam(self: *Camera) void {
     const pad = contpad.getPad(1);
@@ -59,6 +75,7 @@ pub const Camera = struct {
     height: f32,
 
     viewport: Viewport,
+    mode: Mode,
 
     pub fn init(
         position: [3]f32,
@@ -67,6 +84,7 @@ pub const Camera = struct {
         log.logVec(position);
         log.logVec(lookat_pos);
         return .{
+            .mode = .@"Fixed Camera",
             .pos = position,
             .posTarget = position,
             .height = position[1],
@@ -83,21 +101,34 @@ pub const Camera = struct {
 
     pub fn update(self: *Camera) void {
         // var lookat: [3]f32 = undefined;
-        VectorExtend(&self.posTarget,
-            self.lookTarget,
-            1000.0,
-            self.pitch,
-            self.yaw
-        );
+        switch (self.mode) {
+            .@"Fixed Camera" => {
+                // Do nothing
+            },
+            .@"Free Camera Movement" => {
+                mode_freecam(self);
+            },
+            .@"Focus On One Subject" => {
+                // Do nothing for now
+            },
+            .@"Focus Between 2 Subjects" => {
+                VectorExtend(&self.posTarget,
+                    self.lookTarget,
+                    1000.0,
+                    self.pitch,
+                    self.yaw
+                );
 
-        VectorApproach(&self.pos, self.posTarget, 0.25);
-        VectorApproach(&self.look, self.lookTarget, 0.25);
+                VectorApproach(&self.pos, self.posTarget, 0.25);
+                VectorApproach(&self.look, self.lookTarget, 0.25);
 
-        self.pos[1] = self.height;
+                self.pos[1] = self.height;
+            },
+        }
 
         self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 100.0, 8000.0);
         self.viewport.look_at(
-            .{.xyz = .{self.pos[0], self.height, self.pos[2]}},
+            .{.xyz = self.pos},
             .{.xyz = self.look},
             .{.xyz = .{0,1,0}}
         );
