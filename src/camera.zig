@@ -73,6 +73,7 @@ pub const Camera = struct {
     pitch: f32,
     yaw: f32,
     height: f32,
+    distance: f32,
 
     viewport: Viewport,
     mode: Mode,
@@ -88,6 +89,7 @@ pub const Camera = struct {
             .pos = position,
             .posTarget = position,
             .height = 0,
+            .distance = 1000,
 
             .look = lookat_pos,
             .lookTarget = lookat_pos,
@@ -114,7 +116,7 @@ pub const Camera = struct {
             .@"Focus Between 2 Subjects" => {
                 VectorExtend(&self.posTarget,
                     self.lookTarget,
-                    1000.0,
+                    self.distance,
                     self.pitch,
                     self.yaw
                 );
@@ -125,14 +127,13 @@ pub const Camera = struct {
             },
         }
 
-        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 100.0, 8000.0);
+        self.viewport.set_projection(tiny3d.DEG_TO_RAD(45.0), 100.0, 2000.0);
         self.viewport.look_at(
             .{.xyz = self.pos},
             .{.xyz = self.look},
             .{.xyz = .{0,1,0}}
         );
 
-        log.logVec(self.pos);
         self.viewport.attach();
     }
 

@@ -41,7 +41,7 @@ pub fn readygo_update(o: *Object) Result {
 pub fn press_button_to_warp(o: *Object) Result {
     const pad = contpad.getPad(1);
 
-    if (pad.pressed.a) {
+    if (pad.pressed.a or pad.pressed.start) {
         return .{.Warp = o.param};
     } else {
         return .Ok;

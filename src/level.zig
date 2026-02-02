@@ -72,11 +72,24 @@ fn token_to_enum(token: [:0]const u8) LevelCommand {
 pub fn damage_stage(val: f32) void {
     stage_damage += val;
 
+    if (stage_damage < 0)
+    {
+        stage_damage = 0;
+    }
+
     if (stage_damage >= 60.0) {
         getCurrentLevel().change_model("rom:/blockout3.t3dm");
     } else if (stage_damage >= 30.0) {
         getCurrentLevel().change_model("rom:/blockout2.t3dm");
     }
+}
+
+pub fn get_stage_damage() f32 {
+    return stage_damage;
+}
+
+pub fn reset_stage_damage() void {
+    stage_damage = -3000;
 }
 
 pub fn load_new_level(path: [:0]u8) !void {

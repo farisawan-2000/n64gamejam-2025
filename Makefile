@@ -101,3 +101,6 @@ test: $(ROM)
 
 print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
 
+load: $(ROM)
+	cp $< /run/media/$(USER)/89B5-BFEF/
+	sync

@@ -9,6 +9,7 @@ const Object = object.Object;
 const Result = object.Result;
 
 const State = enum(u32) {
+    ReadyGoCountdown,
     Idle,
     Walk,
     Jump,
@@ -69,6 +70,7 @@ pub fn player_dair_init(self: *Object) void {
     self.set_field(DataLayout, .AffectedByGravity, 0);
     self.set_field(DataLayout, .CanMove, 0);
     self.vel[1] = 0.0;
+    self.rot[0] += 0.05;
 
     if (self.timer > 0.5) {
         set_next_state(self, .DownAirAttack);
@@ -78,10 +80,22 @@ pub fn player_dair_init(self: *Object) void {
 pub fn player_dair_attack(self: *Object) void {
     self.set_field(DataLayout, .AffectedByGravity, 1);
 
+    self.rot[0] = math.pi;
+
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
         level.damage_stage(10.0);
         self.set_field(DataLayout, .CanMove, 1);
+        self.rot[0] = 0;
+
+        if (level.get_stage_damage() >= 100) {
+            const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
+
+            nearestPly.dataF[@intFromEnum(DataFLayout.Damage)] += 50.0;
+            set_next_state(nearestPly, .Damaged);
+            nearestPly.vel = .{90.0, 50.0, 50.0};
+            level.reset_stage_damage();
+        }
     }
 }
 
@@ -145,6 +159,9 @@ pub fn player_attack_air(self: *Object) void {
 }
 
 pub fn player_damaged(self: *Object) void {
+    self.set_field(DataLayout, .AffectedByGravity, 1);
+    self.set_field(DataLayout, .CanMove, 1);
+    self.rot[0] = 0;
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
     }
@@ -154,7 +171,14 @@ pub fn player_lose(self: *Object) void {
     self.vel = .{0, 0, 0};
 }
 
+pub fn player_stop(self: *Object) void {
+    self.data[@intFromEnum(DataLayout.CanMove)] = 0;
 
+    if (self.timer > 1.5) {
+        self.data[@intFromEnum(DataLayout.CanMove)] = 1;
+        set_next_state(self, .Idle);
+    }
+}
 
 
 
@@ -164,6 +188,7 @@ pub fn player_lose(self: *Object) void {
 
 pub fn player_state_proc(self: *Object) void {
     switch (self.get_fieldE(DataLayout, .State, State)) {
+        .ReadyGoCountdown => player_stop(self),
         .Idle => player_idle(self),
         .Jump => player_jump(self),
         .DoubleJump => player_djump(self),
@@ -211,6 +236,7 @@ pub fn player_state_proc(self: *Object) void {
 
 pub fn player_init(self: *Object) Result {
     self.data[@intFromEnum(DataLayout.AffectedByGravity)] = 1;
+    self.data[@intFromEnum(DataLayout.CanMove)] = 0;
     self.dataF[@intFromEnum(DataFLayout.BaseYaw)] = 0.0;
     self.dataF[@intFromEnum(DataFLayout.Damage)] = 0.0;
     self.set_fieldE(DataLayout, .State, State, .Idle);
@@ -238,7 +264,7 @@ pub fn player_update(self: *Object) Result {
 
     if (stickmag > 0) {
         self.dataF[@intFromEnum(DataFLayout.Yaw)] = math.atan2(
-             @as(f32, @floatFromInt(pad.stick_y)),
+             -@as(f32, @floatFromInt(pad.stick_y)),
              @as(f32, @floatFromInt(pad.stick_x))
         ) + math.deg_to_rad(level.getCamera().yaw) + (math.pi / 2.0);
 
@@ -247,7 +273,7 @@ pub fn player_update(self: *Object) Result {
 
     if (self.get_fieldE(DataLayout, .State, State) != .Damaged) {
         self.vel[0] = stickmag * math.sin(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
-        self.vel[2] = stickmag * math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
+        self.vel[2] = stickmag * -math.cos(self.dataF[@intFromEnum(DataFLayout.Yaw)]);
     }
 
     player_state_proc(self);
@@ -293,6 +319,7 @@ pub fn player_update(self: *Object) Result {
     }
 
     if (self.param == 1) {
+        // level.getCamera().distance = 1000.0 + math.dist3(self.pos, nearestPly.pos);
         return .{.SetCameraFocus = math.between3(
             self.pos,
             nearestPly.pos
