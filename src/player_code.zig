@@ -94,6 +94,16 @@ pub fn player_dair_attack(self: *Object) void {
             nearestPly.dataF[@intFromEnum(DataFLayout.Damage)] += 50.0;
             set_next_state(nearestPly, .Damaged);
             nearestPly.vel = .{90.0, 50.0, 50.0};
+
+            if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 100.0) {
+                set_next_state(self, .Lose);
+                self.change_model(if (self.param == 1) "rom:/player1_4.t3dm" else "rom:/player2_4.t3dm");
+            } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 70.0) {
+                self.change_model(if (self.param == 1) "rom:/player1_3.t3dm" else "rom:/player2_3.t3dm");
+            } else if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 30.0) {
+                self.change_model(if (self.param == 1) "rom:/player1_2.t3dm" else "rom:/player2_2.t3dm");
+            }
+
             level.reset_stage_damage();
         }
     }
