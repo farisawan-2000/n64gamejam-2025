@@ -145,8 +145,6 @@ pub fn player_attack_air(self: *Object) void {
 }
 
 pub fn player_damaged(self: *Object) void {
-    log.logFmt("Yeeeowch!\n", .{});
-
     if (self.pos[1] == 0.0) {
         set_next_state(self, .Idle);
     }
@@ -170,10 +168,13 @@ pub fn player_state_proc(self: *Object) void {
     if (math.dist3(self.pos, nearestPly.pos) < 200.0) {
         if ((nearestPly.get_fieldE(DataLayout, .State, State) == .AttackAir)
          or (nearestPly.get_fieldE(DataLayout, .State, State) == .Attack)) {
-            // surely this wont ruin the game!
-            self.dataF[@intFromEnum(DataFLayout.Damage)] += 10.0;
-            set_next_state(self, .Damaged);
-            self.vel = math.pushaway(self.pos, nearestPly.pos, 2.0);
+            if (self.get_fieldE(DataLayout, .State, State) != .Damaged) {
+                // only get hit once per damage cycle
+                self.dataF[@intFromEnum(DataFLayout.Damage)] += 10.0;
+                set_next_state(self, .Damaged);
+                self.vel = math.pushaway(self.pos, nearestPly.pos, 1.0);
+                self.vel[1] = 50.0;
+            }
         }
     }
 
@@ -262,8 +263,11 @@ pub fn player_update(self: *Object) Result {
 
     const nearestPly: *Object = level.nearestObjWithBehavior(self, .@"Player Fighter").?;
 
-    if (self.param == 1) {
+    if (self.dataF[@intFromEnum(DataFLayout.Damage)] >= 30) {
+        return .{.Warp = if (self.param == 1) 0 else 1};
+    }
 
+    if (self.param == 1) {
         return .{.SetCameraFocus = math.between3(
             self.pos,
             nearestPly.pos

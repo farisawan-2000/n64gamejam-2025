@@ -86,15 +86,25 @@ pub fn load_new_level(path: [:0]u8) !void {
 pub fn handle_warp(warp_id: u32) void {
     const allocator = std.heap.raw_c_allocator;
 
-    log.log("DESTROY LEVEL!\n");
-    log.logU32(@intFromPtr(currentLevel));
-
     var path_local: [32:0]u8 = undefined;
-    @memcpy(&path_local, &currentLevel.warps.items[warp_id].level);
+    var found_warp: bool = false;
 
-    currentLevel.destroy(allocator);
+    for (currentLevel.warps.items) |*warp| {
+        if (warp.id == warp_id) {
+            found_warp = true;
+            @memcpy(&path_local, &warp.level);
+        }
+    }
 
-    load_new_level(&path_local) catch unreachable;
+    if (found_warp) {
+        log.logFmt("WARPING TO {s}\n", .{path_local});
+
+        currentLevel.destroy(allocator);
+
+        load_new_level(&path_local) catch unreachable;
+    } else {
+        log.logFmt("No warps!\n", .{});
+    }
 }
 
 pub fn nearestObjWithBehavior(self: *Object, bhv: object.ObjBehavior) ?*Object {

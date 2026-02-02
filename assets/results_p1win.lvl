@@ -1,0 +1,4 @@
+level rom:/results_p1.t3dm
+camera pos 600 0 0 rot 0 0 0 mode freecam
+object rom:/null.t3dm pos 0 0 0 rot 0 0 0 scale 1 1 1 bhv warpbutton param 0
+warp 0 rom:/main_stage.lvl
