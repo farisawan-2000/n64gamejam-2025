@@ -79,7 +79,7 @@ $(BUILD_DIR)/src/main.o: $(ZIG_SRCS) | $(BUILD_DIR)/
 	zig build
 	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ zig-out/main.c
 
-$(ROM): N64_ROM_TITLE = "Credits"
+$(ROM): N64_ROM_TITLE = "sUGGOMA"
 $(ROM): $(BUILD_DIR)/game.dfs
 
 $(BUILD_DIR)/game.dfs: $(wildcard filesystem/*) $(ASSET_CONV)
