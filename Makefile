@@ -74,13 +74,10 @@ filesystem/%.t3dm: assets/%.glb
 	$(N64_BINDIR)/mkasset -c 2 -w 256 -o filesystem $@
 
 # Compile Zig code
-$(BUILD_DIR)/%.o: %.zig | $(BUILD_DIR)/
+$(BUILD_DIR)/src/main.o: $(ZIG_SRCS) | $(BUILD_DIR)/
 	@echo "    [ZIG] $@"
-	zig build-obj $< \
-	              -target mips-freestanding-gnu -mcpu=mips2 -lc -D__MIPSEB__ -Dwint_t=long \
-	              $(ZIG_INCLUDES) -ofmt=c -femit-bin=$@.c \
-	              -fomit-frame-pointer
-	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ $@.c
+	zig build
+	$(CC) -c $(CFLAGS) $(NO_WARNINGS) -I /usr/lib/zig/ -o $@ zig-out/main.c
 
 $(ROM): N64_ROM_TITLE = "Credits"
 $(ROM): $(BUILD_DIR)/game.dfs
