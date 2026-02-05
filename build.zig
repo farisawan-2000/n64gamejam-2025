@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
     obj.linkLibC();
 
     const install_c = b.addInstallFile(
-        obj.getEmittedFileGeneric(),
+        obj.getEmittedBin(),
         "main.c",
     );
 
