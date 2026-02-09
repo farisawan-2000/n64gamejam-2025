@@ -248,6 +248,9 @@ pub const Level = struct {
 
                             // param
                             try std.fmt.parseInt(u32, tokens.items[i + 17], 10),
+
+                            // allocator
+                            self._arena.allocator(),
                         ));
                     },
 

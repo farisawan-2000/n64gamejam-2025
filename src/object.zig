@@ -1,5 +1,5 @@
-const constants = @import("constants.zig");
 const std = @import("std");
+const constants = @import("constants.zig");
 
 const Model = @import("tiny3d/model.zig").Model;
 const objcode = @import("object_code.zig");
@@ -8,7 +8,6 @@ const log = @import("logging.zig");
 
 pub const ObjBehavior = enum {
     @"Static Object",
-    @"Rotating Gear",
     @"Player Fighter",
     @"Press Button To Warp",
     @"Ready/Go Popup",
@@ -23,9 +22,6 @@ pub const Result = union(enum) {
 pub fn token_to_behavior(token: [:0]const u8) ObjBehavior {
     if (std.mem.eql(u8, token, "static")) {
         return .@"Static Object";
-    }
-    else if (std.mem.eql(u8, token, "gear")) {
-        return .@"Rotating Gear";
     }
     else if (std.mem.eql(u8, token, "fighter")) {
         return .@"Player Fighter";
@@ -46,11 +42,6 @@ pub fn set_obj_code(o: *Object) void {
         .@"Static Object" => {
             o.initFunc = objcode.default_init;
             o.updateFunc = objcode.default_update;
-        },
-
-        .@"Rotating Gear" => {
-            o.initFunc = objcode.gear_init;
-            o.updateFunc = objcode.gear_update;
         },
 
         .@"Player Fighter" => {
@@ -76,7 +67,7 @@ pub fn link(a: *Object, b: *Object) void {
 }
 
 pub const Object = struct {
-    initFunc: *const fn(o: *Object) Result,
+    initFunc: *const fn(o: *Object, allocator: std.mem.Allocator) Result,
     updateFunc: *const fn(o: *Object) Result,
     model: Model,
     behavior: ObjBehavior,
@@ -90,8 +81,7 @@ pub const Object = struct {
 
     // User data:
     param: u32,
-    data: [8]u32,
-    dataF: [8]f32,
+    data: ?*anyopaque,
 
     // deltatime
     timer: f32,
@@ -102,30 +92,12 @@ pub const Object = struct {
         o.model = Model.load(path);
     }
 
-    pub fn get_field(o: *Object, comptime E1: type, idx: E1) u32 {
-        return o.data[@intFromEnum(idx)];
-    }
-
-    pub fn get_fieldE(o: *Object, comptime E1: type, idx: E1, comptime E2: type) E2 {
-        return @enumFromInt(o.data[@intFromEnum(idx)]);
-    }
-
-    pub fn set_field(o: *Object, comptime E1: type, idx: E1,
-                                 val: u32) void {
-        o.data[@intFromEnum(idx)] = val;
-    }
-
-    pub fn set_fieldE(o: *Object, comptime E1: type, idx: E1,
-                                 comptime E2: type, val: E2) void {
-        o.data[@intFromEnum(idx)] = @intFromEnum(val);
-    }
-
-    pub fn set_fieldF(o: *Object, comptime E1: type, idx: E1, val: f32) void {
-        o.dataF[@intFromEnum(idx)] = val;
+    pub fn get_data(self: *Object, comptime T: type) *T {
+        return @alignCast(@ptrCast(self.data.?));
     }
 
     pub fn init(
-        initFPtr: *const fn(o: *Object) Result,
+        initFPtr: *const fn(o: *Object, allocator: std.mem.Allocator) Result,
         updateFPtr: *const fn(o: *Object) Result,
         modelPath: [:0]const u8,
         bhvString: [:0]const u8,
@@ -133,6 +105,7 @@ pub const Object = struct {
         rotation: [3]f32,
         scaleInit: [3]f32,
         paramVal: u32,
+        allocator: std.mem.Allocator,
     ) Object {
         var obj = Object {
             .initFunc = initFPtr,
@@ -149,14 +122,15 @@ pub const Object = struct {
 
             .vel = .{0, 0, 0},
 
-            .data = [_]u32{ 0 } ** 8,
-            .dataF = [_]f32{ 0 } ** 8,
+            .data = null,
             .param = paramVal,
         };
 
         obj.model.frameIndex = 0;
 
         set_obj_code(&obj);
+
+        _ = obj.initFunc(&obj, allocator);
 
         return obj;
     }

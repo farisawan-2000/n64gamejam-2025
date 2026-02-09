@@ -1,3 +1,5 @@
+const std = @import("std");
+
 const object = @import("object.zig");
 const level = @import("level.zig");
 const contpad = @import("contpad.zig");
@@ -8,8 +10,9 @@ const Object = object.Object;
 const Result = object.Result;
 
 
-pub fn default_init(o: *Object) Result {
+pub fn default_init(o: *Object, allocator: std.mem.Allocator) Result {
     _ = o;
+    _ = allocator;
 
     return .Ok;
 }
@@ -22,16 +25,16 @@ pub fn default_update(o: *Object) Result {
 
 pub fn readygo_update(o: *Object) Result {
     if (o.timer > 0.75) {
-        if (o.data[0] == 0) {
+        if (o.param == 0) {
             o.change_model("rom:/go.t3dm");
-            o.data[0] = 1;
+            o.param = 1;
         }
     }
 
     if (o.timer > 1.5) {
-        if (o.data[0] == 1) {
+        if (o.param == 1) {
             o.change_model("rom:/null.t3dm");
-            o.data[0] = 2;
+            o.param = 2;
         }
     }
 
@@ -48,51 +51,18 @@ pub fn press_button_to_warp(o: *Object) Result {
     }
 }
 
-pub fn gear_init(o: *Object) Result {
-    o.dataF[0] = 0.02;
+// pub fn splash_init(o: *Object) Result {
+//     o.param = 0;
 
-    return .Ok;
-}
+//     return .Ok;
+// }
 
-pub fn gear_update(o: *Object) Result {
-    const pad = contpad.getPad(1);
+// pub fn splash_update(o: *Object) Result {
+//     o.param += 1;
 
-    if (pad.held.a) {
-        o.dataF[0] += o.deltaTime;
-    }
-    if (pad.held.b) {
-        o.dataF[0] -= o.deltaTime;
-    }
+//     if (o.param > 60) {
+//         return .{ .Warp = 1 };
+//     }
 
-    if (pad.pressed.z) {
-        return .{ .Warp = 1 };
-    }
-
-    o.rot[2] -= o.dataF[0];
-
-    o.rot[1] -= 0.004;
-    o.rot[0] = 0;
-    // o.scale = .{
-    //     0.1,
-    //     0.1,
-    //     0.1
-    // };
-
-    return .Ok;
-}
-
-pub fn splash_init(o: *Object) Result {
-    o.data[0] = 0;
-
-    return .Ok;
-}
-
-pub fn splash_update(o: *Object) Result {
-    o.data[0] += 1;
-
-    if (o.data[0] > 60) {
-        return .{ .Warp = 1 };
-    }
-
-    return .Ok;
-}
+//     return .Ok;
+// }
