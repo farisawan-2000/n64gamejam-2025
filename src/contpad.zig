@@ -25,7 +25,7 @@ pub fn update() void {
     };
 }
 
-pub fn getPad(port: i32) ContPad {
-    return pads[@bitCast(port - 1)];
+pub fn getPad(port: usize) ContPad {
+    return pads[port - 1];
 }
 

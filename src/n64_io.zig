@@ -8,7 +8,7 @@ pub fn tokenize() [][]u8 {
 
 pub const Line = struct {
     buf: [1024]u8,
-    line_end: u32,
+    line_end: usize,
 
     pub fn init(f: *const File) Line {
         var ret = Line {

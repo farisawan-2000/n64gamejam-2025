@@ -21,17 +21,16 @@ pub fn build(b: *std.Build) void {
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
+            .link_libc = true,
         }),
     });
 
-    obj.addIncludePath(b.path("include"));
-    obj.addIncludePath(b.path("src"));
+    obj.root_module.addSystemIncludePath(.{.cwd_relative = "/usr/mips64-elf/include"});
 
-    obj.addSystemIncludePath(.{
-        .cwd_relative = "/usr/mips64-elf/include",
-    });
+    obj.root_module.addIncludePath(b.path("include"));
+    obj.root_module.addIncludePath(b.path("src"));
 
-    obj.linkLibC();
+    // obj.setLibCFile(.{.cwd_relative = "/usr/mips64-elf/lib/libc.a"});
 
     const install_c = b.addInstallFile(
         obj.getEmittedBin(),
